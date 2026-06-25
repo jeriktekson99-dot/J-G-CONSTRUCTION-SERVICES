@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-industrial-red: #D41D1D;
+  --color-industrial-red-hover: #A81212;
+  --color-engineering-blue: #1B49B8;
+  --color-engineering-blue-hover: #12338A;
+}
+
+/* Custom styles for engineering grid visuals, smooth focus transitions */
+body {
+  font-family: var(--font-sans);
+  background-color: #ffffff;
+  color: #111111;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base heading styles matching the wide structural aesthetic of the logo */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Strict white layout scroll behavior */
+html {
+  scroll-behavior: smooth;
+}

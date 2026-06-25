@@ -1,0 +1,8 @@
+{
+  "name": "Official: J/G Engineering Services V3",
+  "description": "Premium industrial \u0026 commercial engineering homepage showing structural analysis, project management showcases, testimonials, and consultation booking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
