@@ -133,7 +133,7 @@ export default function GetStartedPage({ onScrollToSection }: GetStartedPageProp
         {/* Background Image Overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img 
-            src="/src/assets/images/rebar_foundation_1780503628161.png" 
+            src="/assets/images/rebar_foundation_1780503628161.png" 
             alt="Get started background" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-[0.55] select-none"

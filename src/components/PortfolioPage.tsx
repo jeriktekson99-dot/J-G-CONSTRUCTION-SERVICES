@@ -63,7 +63,7 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
         {/* Background Image Overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img 
-            src="/src/assets/images/industrial_retrofit_1780500246965.png" 
+            src="/assets/images/industrial_retrofit_1780500246965.png" 
             alt="Portfolio projects background" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-[0.55] select-none"
@@ -251,7 +251,7 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
       <section className="bg-white py-16 border-t border-black relative overflow-hidden">
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img 
-            src="/src/assets/images/industrial_retrofit_1780500246965.png" 
+            src="/assets/images/industrial_retrofit_1780500246965.png" 
             alt="Ready to work together background" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-[0.25] grayscale select-none"

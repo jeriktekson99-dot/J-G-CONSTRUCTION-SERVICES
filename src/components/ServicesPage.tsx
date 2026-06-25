@@ -39,7 +39,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "Architectural Planning & Drafting",
       tagline: "Excellent Workmanship & Aesthetic Space Utilization",
       description: "Detailed space planning, custom office/residence structural layouts, custom architectural renderings, and drafting tailored to total client satisfaction. We ensure spatial efficiency meets complete functional expectations.",
-      image: "/src/assets/images/about_construction_site_1780503065020.png",
+      image: "/assets/images/about_construction_site_1780503065020.png",
       metric: "100%",
       metricLabel: "Client Satisfaction Approval on Drafting Concepts",
       scopeItems: [
@@ -54,7 +54,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "Interior Fit-Out & Finishing Works",
       tagline: "Premium Quality Finishings for Commercial & Corporate Spaces",
       description: "High-grade finishing, custom partition walls, false ceilings, architectural trims, surface detailing, and cabinetry designed with exacting structural standards to ensure beautiful and durable interiors.",
-      image: "/src/assets/images/commercial_fitout_1780503646291.png",
+      image: "/assets/images/commercial_fitout_1780503646291.png",
       metric: "45 Days",
       metricLabel: "Average Completion Timeline for Corporate Store Outlets",
       scopeItems: [
@@ -69,7 +69,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "General Building Renovation",
       tagline: "Transformative Modernizations & Extension Architectures",
       description: "Modernizing corporate spaces and private residences. We execute structural repairs, spatial extensions, structural load transfers, and facade renovations to renew functional utilities without safety compromise.",
-      image: "/src/assets/images/commercial_development_1780500228422.png",
+      image: "/assets/images/commercial_development_1780500228422.png",
       metric: "₱0.00",
       metricLabel: "Unapproved Budget Spillover in Scope Upgrades",
       scopeItems: [
@@ -84,7 +84,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "Civil Works & Site Infrastructure",
       tagline: "High-Grade Earthworks, Roads & Demarcations",
       description: "Heavy site layout grading, site volume clearing, robust drainage pipes, concrete roadways, and retaining systems designed for regional slope and soil stability.",
-      image: "/src/assets/images/civil_infrastructure_1780500263690.png",
+      image: "/assets/images/civil_infrastructure_1780500263690.png",
       metric: "F_s ≥ 1.5",
       metricLabel: "Soil Shear Safety Factor and Slope Stability Margin",
       scopeItems: [
@@ -101,7 +101,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "Structural Engineering & Design",
       tagline: "Uncompromising Concrete & Structural Steel Computations",
       description: "Rigid calculation models under building codes, structural steel truss detailing, finite element shear load analysis, and seismic stability guarantees to prevent structural vulnerabilities.",
-      image: "/src/assets/images/field_excellence_operations_1780503096054.png",
+      image: "/assets/images/field_excellence_operations_1780503096054.png",
       metric: "100%",
       metricLabel: "Calculation Success Rate on Initial Building Permit Reviews",
       scopeItems: [
@@ -118,7 +118,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "Foundations & Concrete Works",
       tagline: "Monolithic Foundations & Subgrade Stability Checking",
       description: "Ensuring structural permanence with monolithic slab pours, high-PSI concrete column pouring, soil shear suitability check, piling, and footing integrity certifications.",
-      image: "/src/assets/images/rebar_foundation_1780503628161.png",
+      image: "/assets/images/rebar_foundation_1780503628161.png",
       metric: "f'_c ≥ Spec",
       metricLabel: "Concrete Strength Verification Curing Compliance Rate",
       scopeItems: [
@@ -135,7 +135,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "Electrical Systems Engineering",
       tagline: "Safe Power Distribution Paneling & Feeds",
       description: "Comprehensive electrical network design and installation. We craft distribution panel layouts, safe conduits and wire runs, lighting circuits, and emergency power setups.",
-      image: "/src/assets/images/industrial_retrofit_1780500246965.png",
+      image: "/assets/images/industrial_retrofit_1780500246965.png",
       metric: "0",
       metricLabel: "On-Site Mechanical-Electrical Clashes during execution",
       scopeItems: [
@@ -150,7 +150,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "Plumbing & Sanitary Engineering",
       tagline: "Hygienic Waste Piping & Pressure Clean Water Loops",
       description: "Expert design and plumbing layout execution. We plan sanitary vents, booster-fed clean water networks, storm rooftop drainage downspouts, and high-efficiency sanitary fixtures installation.",
-      image: "/src/assets/images/commercial_fitout_1780503646291.png",
+      image: "/assets/images/commercial_fitout_1780503646291.png",
       metric: "100%",
       metricLabel: "Hydrostatic Static Water Piping Defect-Free Pass Rate",
       scopeItems: [
@@ -165,7 +165,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
       title: "Pre-Construction & Estimates",
       tagline: "Maximize Client Equity via Value Cost Engineering",
       description: "Accurate material takeoffs, design checks to minimize waste, detailed bidding, and transparent pricing. We provide customers with an adequate explanation of our bid.",
-      image: "/src/assets/images/blueprint_cad_1780503663960.png",
+      image: "/assets/images/blueprint_cad_1780503663960.png",
       metric: "-15%",
       metricLabel: "Average Client Baseline Budget Outlay Restructuring",
       scopeItems: [
@@ -187,7 +187,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
         {/* Background Image Overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img 
-            src="/src/assets/images/blueprint_cad_1780503663960.png" 
+            src="/assets/images/blueprint_cad_1780503663960.png" 
             alt="Services specifications background" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-[0.55] select-none"
@@ -284,7 +284,7 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
         {/* Background Image Overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img 
-            src="/src/assets/images/blueprint_cad_1780503663960.png" 
+            src="/assets/images/blueprint_cad_1780503663960.png" 
             alt="Ready to work together background" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-[0.25] grayscale select-none"

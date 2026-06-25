@@ -56,21 +56,21 @@ export default function ServiceDetailPage({ service, onBack, onScrollToSection }
       title: "Steel Truss Logistics Warehouse",
       location: "Cavite",
       desc: "High-clearance truss fabrication and rapid industrial erection timeline controls.",
-      image: "/src/assets/images/industrial_retrofit_1780500246965.png"
+      image: "/assets/images/industrial_retrofit_1780500246965.png"
     },
     {
       id: "project-2",
       title: "Prime Commercial Hub Shell & Core",
       location: "Lucena City",
       desc: "Multi-level reinforced core structural stabilization matching municipal guidelines.",
-      image: "/src/assets/images/commercial_development_1780500228422.png"
+      image: "/assets/images/commercial_development_1780500228422.png"
     },
     {
       id: "project-3",
       title: "High-Load Structural Slab Project",
       location: "Manila",
       desc: "Massive monolithic pours featuring anti-deflection steel grids and strict inspection.",
-      image: "/src/assets/images/rebar_foundation_1780503628161.png"
+      image: "/assets/images/rebar_foundation_1780503628161.png"
     }
   ];
 
@@ -188,7 +188,7 @@ export default function ServiceDetailPage({ service, onBack, onScrollToSection }
             <div className="lg:col-span-5 order-1 lg:order-2">
               <div className="border-2 border-black overflow-hidden shadow-[6px_6px_0px_#1B49B8] aspect-[4/3] bg-gray-50 relative group">
                 <img 
-                  src="/src/assets/images/blueprint_cad_1780503663960.png" 
+                  src="/assets/images/blueprint_cad_1780503663960.png" 
                   alt="Engineering CAD Schematic" 
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover grayscale transition-transform duration-500 group-hover:scale-105"
@@ -212,7 +212,7 @@ export default function ServiceDetailPage({ service, onBack, onScrollToSection }
             <div className="lg:col-span-5 flex flex-col justify-between">
               <div className="border-2 border-black overflow-hidden shadow-[6px_6px_0px_#111111] aspect-[1/1] w-full bg-gray-100 relative group h-full">
                 <img 
-                  src="/src/assets/images/about_construction_site_1780503065020.png" 
+                  src="/assets/images/about_construction_site_1780503065020.png" 
                   alt="Structural on-site safety execution" 
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover grayscale transition-all duration-300 group-hover:grayscale-0"
@@ -314,7 +314,7 @@ export default function ServiceDetailPage({ service, onBack, onScrollToSection }
             <div className="lg:col-span-5">
               <div className="border-2 border-black overflow-hidden shadow-[6px_6px_0px_#111111] aspect-[4/3] bg-gray-50 relative group">
                 <img 
-                  src="/src/assets/images/rebar_foundation_1780503628161.png" 
+                  src="/assets/images/rebar_foundation_1780503628161.png" 
                   alt="Engineering inspection compliance verification" 
                   referrerPolicy="no-referrer"
                   className="w-full h-full object-cover grayscale transition-transform duration-500 group-hover:scale-105"

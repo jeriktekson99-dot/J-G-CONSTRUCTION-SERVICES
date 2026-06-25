@@ -190,9 +190,9 @@ export default function ProjectShowcasePage({ project, onBack, onScrollToSection
                       ? (project.images[activeThumbIndex] || project.image)
                       : (
                           activeThumbIndex === 0 ? project.image : 
-                          activeThumbIndex === 1 ? "/src/assets/images/blueprint_cad_1780503663960.png" :
-                          activeThumbIndex === 2 ? "/src/assets/images/rebar_foundation_1780503628161.png" :
-                          "/src/assets/images/about_construction_site_1780503065020.png"
+                          activeThumbIndex === 1 ? "/assets/images/blueprint_cad_1780503663960.png" :
+                          activeThumbIndex === 2 ? "/assets/images/rebar_foundation_1780503628161.png" :
+                          "/assets/images/about_construction_site_1780503065020.png"
                         )
                   } 
                   alt={`${project.title} - Structural phase ${activeThumbIndex + 1}`} 
@@ -210,9 +210,9 @@ export default function ProjectShowcasePage({ project, onBack, onScrollToSection
               <div className="grid grid-cols-4 gap-3 sm:gap-4">
                 {(project.images && project.images.length > 0 ? project.images : [
                   project.image,
-                  "/src/assets/images/blueprint_cad_1780503663960.png",
-                  "/src/assets/images/rebar_foundation_1780503628161.png",
-                  "/src/assets/images/about_construction_site_1780503065020.png"
+                  "/assets/images/blueprint_cad_1780503663960.png",
+                  "/assets/images/rebar_foundation_1780503628161.png",
+                  "/assets/images/about_construction_site_1780503065020.png"
                 ]).map((thumbSrc, index) => {
                   const isActive = activeThumbIndex === index;
                   return (

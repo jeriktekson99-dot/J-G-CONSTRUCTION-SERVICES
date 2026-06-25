@@ -12,7 +12,7 @@ export default function ConsultationForm({ onScrollToSection }: ConsultationForm
     >
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img 
-          src="/src/assets/images/field_excellence_operations_1780503096054.png" 
+          src="/assets/images/field_excellence_operations_1780503096054.png" 
           alt="Ready to work together background" 
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover opacity-[0.25] grayscale select-none"

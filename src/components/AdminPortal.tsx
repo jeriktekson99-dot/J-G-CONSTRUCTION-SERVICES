@@ -127,7 +127,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     title: '',
     category: 'Structural Design',
     location: '',
-    image: '/src/assets/images/industrial_retrofit_1780500246965.png',
+    image: '/assets/images/industrial_retrofit_1780500246965.png',
     images: [],
     scope: '',
     client: '',
@@ -639,7 +639,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
         title: '',
         category: 'Structural Design',
         location: '',
-        image: '/src/assets/images/industrial_retrofit_1780500246965.png',
+        image: '/assets/images/industrial_retrofit_1780500246965.png',
         images: [],
         scope: '',
         client: '',
@@ -940,7 +940,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
         <div id="secure-login-gateway" className="fixed inset-0 z-[100] h-screen w-screen overflow-hidden bg-white text-black grid grid-cols-1 md:grid-cols-2">
           
           {/* Left Sector: Visual Anchor & Minimalist Welcoming Frame */}
-          <div className="relative hidden md:flex items-center justify-center h-full w-full bg-cover bg-center select-none" style={{ backgroundImage: 'url(/src/assets/images/about_construction_site_1780503065020.png)' }}>
+          <div className="relative hidden md:flex items-center justify-center h-full w-full bg-cover bg-center select-none" style={{ backgroundImage: 'url(/assets/images/about_construction_site_1780503065020.png)' }}>
             {/* Ambient Dark Overlay */}
             <div className="absolute inset-0 bg-[#111111]/85 z-0"></div>
             
@@ -3366,7 +3366,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                         title: `${viewingLead.companyName || viewingLead.fullName} Construction Project`,
                         category: viewingLead.serviceCategory || 'Structural Design',
                         location: '',
-                        image: '/src/assets/images/industrial_retrofit_1780500246965.png',
+                        image: '/assets/images/industrial_retrofit_1780500246965.png',
                         scope: viewingLead.projectScope,
                         client: viewingLead.fullName,
                         completedYear: '2026',
@@ -3832,7 +3832,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                         // Fallback main image if current primary was deleted
                                         let nextPrimary = prev.image;
                                         if (prev.image === imgUrl) {
-                                          nextPrimary = updated.length > 0 ? updated[0] : '/src/assets/images/industrial_retrofit_1780500246965.png';
+                                          nextPrimary = updated.length > 0 ? updated[0] : '/assets/images/industrial_retrofit_1780500246965.png';
                                         }
                                         return { ...prev, images: updated, image: nextPrimary };
                                       });
@@ -3841,7 +3841,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                         const updated = (prev.images || []).filter((_, idx) => idx !== imgIdx);
                                         let nextPrimary = prev.image;
                                         if (prev.image === imgUrl) {
-                                          nextPrimary = updated.length > 0 ? updated[0] : '/src/assets/images/industrial_retrofit_1780500246965.png';
+                                          nextPrimary = updated.length > 0 ? updated[0] : '/assets/images/industrial_retrofit_1780500246965.png';
                                         }
                                         return { ...prev, images: updated, image: nextPrimary };
                                       });

@@ -70,7 +70,7 @@ export default function Hero({ onGetStarted, onViewProjects }: HeroProps) {
       {/* Background Image Overlay */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img 
-          src="/src/assets/images/blueprint_cad_1780503663960.png" 
+          src="/assets/images/blueprint_cad_1780503663960.png" 
           alt="Technical Blueprint background" 
           referrerPolicy="no-referrer"
           className="w-full h-full object-cover opacity-[0.55] select-none"

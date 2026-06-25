@@ -124,21 +124,21 @@ export default function About({ onScrollToSection }: AboutProps) {
       name: "Engr. Gregorio A. Lacay",
       role: "Founder & General Manager",
       tag: "FOUNDER",
-      image: "/src/assets/images/leadership_j_santos_portrait_1780503110023.png",
+      image: "/assets/images/leadership_j_santos_portrait_1780503110023.png",
       bio: "Engr. Lacay recently founded J/G Engineering Services to realize his dream of providing architectural, structural, and civil works through excellent workmanship. With extensive professional experience and a tradition of integrity and excellence, he guides our design and finishing teams with solid expertise."
     },
     {
       name: "Arch. G. Reyes, UAP",
       role: "Senior Architectural & Interior Fit-Out Lead",
       tag: "KEY PROFESSIONAL",
-      image: "/src/assets/images/leadership_g_reyes_portrait_1780763344158.png",
+      image: "/assets/images/leadership_g_reyes_portrait_1780763344158.png",
       bio: "A multi-disciplined professional with over a decade of career involvement in engineering and construction. Arch. Reyes specializes in architectural, finishing, renovation, and interior fit-out design, assuring total client satisfaction."
     },
     {
       name: "Engr. E. Mendoza, PEE",
       role: "Senior MEP (Electrical & Plumbing) Engineer",
       tag: "KEY PROFESSIONAL",
-      image: "/src/assets/images/leadership_e_tan_portrait_1780763363499.png",
+      image: "/assets/images/leadership_e_tan_portrait_1780763363499.png",
       bio: "With over a decade of career involvement in engineering, Engr. Mendoza oversees complex electrical, plumbing, and mechanical works, aligning design plans with high technical requirements and on-time delivery constraints."
     }
   ];
@@ -199,7 +199,7 @@ export default function About({ onScrollToSection }: AboutProps) {
         {/* Background Image Overlay */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img 
-            src="/src/assets/images/about_construction_site_1780503065020.png" 
+            src="/assets/images/about_construction_site_1780503065020.png" 
             alt="About J/G J/G site operations" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-[0.55] select-none"
@@ -251,7 +251,7 @@ export default function About({ onScrollToSection }: AboutProps) {
               <div className="border border-black p-3 bg-white shadow-[8px_8px_0px_#111111]">
                 <div className="aspect-16/10 bg-gray-50 overflow-hidden border border-gray-100">
                   <img 
-                    src="/src/assets/images/blueprint_cad_1780503663960.png" 
+                    src="/assets/images/blueprint_cad_1780503663960.png" 
                     alt="Founding blueprint and design concepts of J/G Services" 
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover grayscale block" 
@@ -278,7 +278,7 @@ export default function About({ onScrollToSection }: AboutProps) {
               <div className="border border-black p-3 bg-white shadow-[8px_8px_0px_#111111]">
                 <div className="aspect-16/10 bg-gray-50 overflow-hidden border border-gray-100">
                   <img 
-                    src="/src/assets/images/about_construction_site_1780503065020.png" 
+                    src="/assets/images/about_construction_site_1780503065020.png" 
                     alt="Active on-site J/G engineering finishing operations" 
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover grayscale block" 
@@ -426,7 +426,7 @@ export default function About({ onScrollToSection }: AboutProps) {
               <div className="border-2 border-black p-3 bg-white shadow-[8px_8px_0px_#1B49B8] h-full flex flex-col justify-between">
                 <div className="aspect-[10/11] bg-gray-50 overflow-hidden border border-gray-100 flex-1">
                   <img 
-                    src="/src/assets/images/field_excellence_operations_1780503096054.png" 
+                    src="/assets/images/field_excellence_operations_1780503096054.png" 
                     alt="Inspection of on-site engineering workmanship" 
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover grayscale" 
@@ -682,7 +682,7 @@ export default function About({ onScrollToSection }: AboutProps) {
       <section className="bg-white py-16 border-t border-black relative overflow-hidden">
         <div className="absolute inset-0 z-0 pointer-events-none">
           <img 
-            src="/src/assets/images/about_construction_site_1780503065020.png" 
+            src="/assets/images/about_construction_site_1780503065020.png" 
             alt="Ready to work together background" 
             referrerPolicy="no-referrer"
             className="w-full h-full object-cover opacity-[0.25] grayscale select-none"

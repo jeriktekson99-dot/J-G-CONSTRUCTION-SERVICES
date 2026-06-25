@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const srcDir = path.join(process.cwd(), 'src', 'assets', 'images');
-const destDir = path.join(process.cwd(), 'public', 'src', 'assets', 'images');
+const destDir = path.join(process.cwd(), 'public', 'assets', 'images');
 
 // Ensure destination directory exists
 if (!fs.existsSync(destDir)) {

@@ -60,7 +60,7 @@ export default function ProblemSolution() {
             <div className="w-full lg:w-[45%] flex flex-col justify-center">
               <div className="relative">
                 <img 
-                  src="/src/assets/images/risk_metrics_concept_1780570881461.png" 
+                  src="/assets/images/risk_metrics_concept_1780570881461.png" 
                   alt="Risk Analysis - Crumbling structural beam failure mode" 
                   referrerPolicy="no-referrer"
                   className="w-full h-auto object-cover border-2 border-black shadow-[6px_6px_0px_#111111]"
@@ -132,7 +132,7 @@ export default function ProblemSolution() {
             <div className="w-full lg:w-[45%] flex flex-col justify-center lg:order-1">
               <div className="relative">
                 <img 
-                  src="/src/assets/images/secure_solution_blueprint_1780570898725.png" 
+                  src="/assets/images/secure_solution_blueprint_1780570898725.png" 
                   alt="Solution Statement - Unified blueprint coordinate model simulation" 
                   referrerPolicy="no-referrer"
                   className="w-full h-auto object-cover border-2 border-black shadow-[6px_6px_0px_#1B49B8]"
