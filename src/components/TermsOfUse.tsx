@@ -49,7 +49,7 @@ export default function TermsOfUse({ onScrollToSection }: TermsOfUseProps) {
               Agreement & Acceptance of Terms
             </h2>
             <p className="font-sans text-gray-700 text-sm sm:text-base leading-relaxed">
-              Welcome to the website of <strong>J/G Engineering Services</strong>. By accessing or using our website, digital platforms, and online services, you agree to comply with and be bound by the following Terms of Use. Please review these terms carefully. If you do not agree to these terms, you should not use this website or rely on the digital materials provided herein.
+              Welcome to the website of <strong>J/G Construction Services</strong>. By accessing or using our website, digital platforms, and online services, you agree to comply with and be bound by the following Terms of Use. Please review these terms carefully. If you do not agree to these terms, you should not use this website or rely on the digital materials provided herein.
             </p>
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function TermsOfUse({ onScrollToSection }: TermsOfUseProps) {
               1. Acceptance of Agreement
             </h3>
             <p className="font-sans text-gray-600 text-sm leading-relaxed">
-              You agree to the terms and conditions outlined in this Terms of Use Agreement ("Agreement") with respect to our site. This Agreement constitutes the entire and only agreement between J/G Engineering Services and you, and supersedes all prior or contemporaneous agreements, representations, warranties, and understandings with respect to the site, the content, or services provided by or through the site.
+              You agree to the terms and conditions outlined in this Terms of Use Agreement ("Agreement") with respect to our site. This Agreement constitutes the entire and only agreement between J/G Construction Services and you, and supersedes all prior or contemporaneous agreements, representations, warranties, and understandings with respect to the site, the content, or services provided by or through the site.
             </p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default function TermsOfUse({ onScrollToSection }: TermsOfUseProps) {
               2. Scope of Services
             </h3>
             <p className="font-sans text-gray-600 text-sm leading-relaxed">
-              J/G Engineering Services specializes in engineering, design, and building solutions within the Philippines, including:
+              J/G Construction Services specializes in engineering, design, and building solutions within the Philippines, including:
             </p>
 
             <div className="space-y-3 font-sans text-xs text-gray-700">
@@ -178,7 +178,7 @@ export default function TermsOfUse({ onScrollToSection }: TermsOfUseProps) {
               5. Indemnification & Limitation of Liability
             </h3>
             <p className="font-sans text-gray-700 text-sm sm:text-base leading-relaxed">
-              J/G Engineering Services and its management team shall not be held liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to safely navigate our web platform or reliance upon generic information contained within our industry archive articles. You agree to indemnify and hold harmless our officers, engineers, and foremen from any liability, loss, claim, and expense related to your violation of this Agreement.
+              J/G Construction Services and its management team shall not be held liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to safely navigate our web platform or reliance upon generic information contained within our industry archive articles. You agree to indemnify and hold harmless our officers, engineers, and foremen from any liability, loss, claim, and expense related to your violation of this Agreement.
             </p>
           </div>
         </div>
@@ -202,7 +202,7 @@ export default function TermsOfUse({ onScrollToSection }: TermsOfUseProps) {
               7. Modifications to Terms
             </h3>
             <p className="font-sans text-gray-700 text-sm sm:text-base leading-relaxed">
-              J/G Engineering Services reserves the right to modify, append, or delete portions of these terms at any time without explicit individual notice. Your continued utilization of our website following the posting of modifications indicates clear compliance and absolute acceptance of the updated terms.
+              J/G Construction Services reserves the right to modify, append, or delete portions of these terms at any time without explicit individual notice. Your continued utilization of our website following the posting of modifications indicates clear compliance and absolute acceptance of the updated terms.
             </p>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function TermsOfUse({ onScrollToSection }: TermsOfUseProps) {
               <div className="p-5 bg-white border border-gray-200 font-sans space-y-3">
                 <div className="flex gap-2.5 items-center">
                   <Shield className="h-4 w-4 text-industrial-red shrink-0" />
-                  <span className="font-mono text-xs font-bold text-gray-800">J/G Engineering Services</span>
+                  <span className="font-mono text-xs font-bold text-gray-800">J/G Construction Services</span>
                 </div>
                 <div className="flex gap-2.5 items-center pb-2 border-b border-gray-100">
                   <User className="h-4 w-4 text-gray-400 shrink-0" />

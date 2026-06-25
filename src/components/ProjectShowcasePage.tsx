@@ -102,7 +102,7 @@ export default function ProjectShowcasePage({ project, onBack, onScrollToSection
   };
 
   const handleDownloadProfile = () => {
-    alert("SYSTEM STATEMENT: Downloading J/G Engineering Services Corporate Profile [PDF] - High-Resolution Workmanship Portfolio & Capabilities Spec Sheets.");
+    alert("SYSTEM STATEMENT: Downloading J/G Construction Services Corporate Profile [PDF] - High-Resolution Workmanship Portfolio & Capabilities Spec Sheets.");
   };
 
   return (
@@ -310,7 +310,7 @@ export default function ProjectShowcasePage({ project, onBack, onScrollToSection
                   Engr. Gregorio A. Lacay
                 </h4>
                 <p className="font-sans text-xs text-gray-500 mt-1">
-                  Founder & General Manager, J/G Engineering Services
+                  Founder & General Manager, J/G Construction Services
                 </p>
               </div>
               <div className="pt-3 border-t border-gray-100">

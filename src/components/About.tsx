@@ -125,7 +125,7 @@ export default function About({ onScrollToSection }: AboutProps) {
       role: "Founder & General Manager",
       tag: "FOUNDER",
       image: "/assets/images/leadership_j_santos_portrait_1780503110023.png",
-      bio: "Engr. Lacay recently founded J/G Engineering Services to realize his dream of providing architectural, structural, and civil works through excellent workmanship. With extensive professional experience and a tradition of integrity and excellence, he guides our design and finishing teams with solid expertise."
+      bio: "Engr. Lacay recently founded J/G Construction Services to realize his dream of providing architectural, structural, and civil works through excellent workmanship. With extensive professional experience and a tradition of integrity and excellence, he guides our design and finishing teams with solid expertise."
     },
     {
       name: "Arch. G. Reyes, UAP",
@@ -237,7 +237,7 @@ export default function About({ onScrollToSection }: AboutProps) {
                 Specialized Craftsmanship.<br/>Built on a Foundation of Trust.
               </h2>
               <p className="font-sans text-gray-600 text-sm leading-relaxed mb-6">
-                Founded by <strong>Engr. Gregorio A. Lacay</strong>, <strong>J/G Engineering Services</strong> is a dynamic new entrant in the construction and engineering industry, driven by a strict commitment to quality, integrity, and exceptional workmanship. Backed by solid professional experience, the firm delivers dependable building and engineering solutions—including general construction, civil works, renovation, and interior fit-outs—across corporate offices, retail outlets, and residential units.
+                Founded by <strong>Engr. Gregorio A. Lacay</strong>, <strong>J/G Construction Services</strong> is a dynamic new entrant in the construction and engineering industry, driven by a strict commitment to quality, integrity, and exceptional workmanship. Backed by solid professional experience, the firm delivers dependable building and engineering solutions—including general construction, civil works, renovation, and interior fit-outs—across corporate offices, retail outlets, and residential units.
               </p>
               <div className="p-4 bg-gray-50 border border-gray-200 font-mono text-xs text-black space-y-1">
                 <div className="font-bold text-engineering-blue">// INDUSTRIAL REGISTRY DETAILS</div>
@@ -300,7 +300,7 @@ export default function About({ onScrollToSection }: AboutProps) {
                 Expert Project Managers.<br/>Hands-On Operational Touch.
               </h2>
               <p className="font-sans text-gray-600 text-sm leading-relaxed mb-6">
-                <strong>J/G Engineering Services</strong> is ably supported by a team of professionals and operating managers who have solid backgrounds in construction. Our management team is comprised not only of certified professionals with prestigious corporate credentials, but also hands-on, dedicated project builders who bring a highly personal touch, extreme technical precision, and absolute structural compliance to all projects that they handle.
+                <strong>J/G Construction Services</strong> is ably supported by a team of professionals and operating managers who have solid backgrounds in construction. Our management team is comprised not only of certified professionals with prestigious corporate credentials, but also hands-on, dedicated project builders who bring a highly personal touch, extreme technical precision, and absolute structural compliance to all projects that they handle.
               </p>
               <div className="p-4 bg-gray-50 border border-gray-200 font-mono text-xs text-black space-y-1">
                 <div className="font-bold text-engineering-blue">// MANAGEMENT REGISTRY</div>
@@ -368,11 +368,11 @@ export default function About({ onScrollToSection }: AboutProps) {
                   OUR MISSION // SERVICE COMMITMENT
                 </span>
                 <h3 className="font-display font-black text-2xl text-black mb-4">
-                  Premium Engineering Services
+                  Premium Construction Services
                 </h3>
                 <div className="font-sans text-gray-600 text-sm leading-relaxed space-y-4">
                   <p>
-                    Committed to total customer satisfaction and nation-building, we deliver premium architectural, civil, structural, electrical, and plumbing engineering services on time and at competitive prices.
+                    Committed to total customer satisfaction and nation-building, we deliver premium architectural, civil, structural, electrical, and plumbing construction services on time and at competitive prices.
                   </p>
                   <p>
                     Grounded in a foundation of absolute client trust and high ethical standards, we leverage advanced technology and efficient management to maximize equity value.

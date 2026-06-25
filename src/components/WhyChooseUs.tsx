@@ -56,7 +56,7 @@ export default function WhyChooseUs() {
               </h3>
               
               <p className="font-sans text-gray-600 text-base leading-relaxed mb-6">
-                J/G Engineering Services is committed to total customer satisfaction. We integrate architectural, structural, electrical, plumbing, and finishing works into a seamless, cost-efficient lifecycle to provide premium quality results on time.
+                J/G Construction Services is committed to total customer satisfaction. We integrate architectural, structural, electrical, plumbing, and finishing works into a seamless, cost-efficient lifecycle to provide premium quality results on time.
               </p>
             </div>
 

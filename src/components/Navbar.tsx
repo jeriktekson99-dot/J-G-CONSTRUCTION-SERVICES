@@ -45,13 +45,13 @@ export default function Navbar({ currentView, setView, onScrollToSection }: Navb
           <button 
             onClick={() => handleViewClick('home')}
             className="flex items-center gap-3 group cursor-pointer focus:outline-none"
-            aria-label="J/G Engineering Services Homepage"
+            aria-label="J/G Construction Services Homepage"
           >
             <div className="transition-transform duration-500 group-hover:rotate-12">
               <SgLogo className="h-9 w-9 sm:h-10 sm:w-10" />
             </div>
             <span className="font-display font-extrabold text-[#111111] tracking-tight hover:text-industrial-red transition-colors text-base sm:text-lg lg:text-xl">
-              J/G ENGINEERING SERVICES
+              J/G CONSTRUCTION SERVICES
             </span>
           </button>
 

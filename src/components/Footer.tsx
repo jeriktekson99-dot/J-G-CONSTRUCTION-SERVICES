@@ -77,7 +77,7 @@ export default function Footer({ setView, onScrollToSection }: FooterProps) {
             >
               <SgLogo className="h-8 w-8 text-black group-hover:rotate-6 transition-transform duration-300" />
               <span className="font-display font-extrabold tracking-tight text-black text-lg">
-                J/G ENGINEERING
+                J/G CONSTRUCTION
               </span>
             </button>
             <p className="font-sans text-xs text-gray-600 leading-relaxed max-w-sm">
@@ -278,7 +278,7 @@ export default function Footer({ setView, onScrollToSection }: FooterProps) {
         {/* Bottom copyright/legal row with NO system indicators/status tags */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8">
           <p className="font-sans text-xs text-gray-500 text-center md:text-left">
-            © {currentYear} J/G Engineering Services. All Rights Reserved.
+            © {currentYear} J/G Construction Services. All Rights Reserved.
           </p>
           <div className="flex flex-wrap gap-4 text-xs font-mono text-gray-500 justify-center md:justify-end items-center">
             <button 

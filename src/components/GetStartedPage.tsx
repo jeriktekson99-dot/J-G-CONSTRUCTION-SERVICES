@@ -48,7 +48,7 @@ export default function GetStartedPage({ onScrollToSection }: GetStartedPageProp
       id: "faq-1",
       num: "01",
       category: "Technical Specifications",
-      question: "What is J/G Engineering Services' typical turnaround time for a proposal?",
+      question: "What is J/G Construction Services' typical turnaround time for a proposal?",
       answer: "We deliver initial feasibility analyses and comprehensive bidding proposals within 3 to 5 business days from the receipt of project blueprint assets, geotechnical reports, and structural metadata. For site emergency audits or structural stamp validations, we can deploy engineers for physical site reviews within 24 hours of notification."
     },
     {

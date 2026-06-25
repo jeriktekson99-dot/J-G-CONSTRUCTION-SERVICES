@@ -154,7 +154,7 @@ const DEFAULT_PROJECTS: Project[] = [
 const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
   {
     id: "cl-1",
-    quote: "J/G Engineering Services brought unmatched clarity to our commercial development project. Their structural solutions saved us weeks on the timeline.",
+    quote: "J/G Construction Services brought unmatched clarity to our commercial development project. Their structural solutions saved us weeks on the timeline.",
     author: "Robert Vance",
     role: "Project Director",
     organization: "Corporate Logistics Group",

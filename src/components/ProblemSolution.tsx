@@ -89,7 +89,7 @@ export default function ProblemSolution() {
         }} />
 
         <div className="absolute right-6 top-6 font-mono text-[9px] text-[#1B49B8] font-black select-none pointer-events-none tracking-widest">
-          // J/G ENGINEERING SERVICES SOLUTION // ACTIVE_STAMP_OK
+          // J/G CONSTRUCTION SERVICES SOLUTION // ACTIVE_STAMP_OK
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -109,7 +109,7 @@ export default function ProblemSolution() {
                 </h2>
                 
                 <p className="font-sans text-gray-600 text-sm sm:text-base leading-relaxed mb-6">
-                  We eliminate construction guesswork entirely. By pairing excellent workmanship with continuous on-site supervision, J/G Engineering Services ensures your architectural finishes, structural columns, electrical distribution boards, and plumbing networks are executed flawlessly to code specifications from day one.
+                  We eliminate construction guesswork entirely. By pairing excellent workmanship with continuous on-site supervision, J/G Construction Services ensures your architectural finishes, structural columns, electrical distribution boards, and plumbing networks are executed flawlessly to code specifications from day one.
                 </p>
 
                 <p className="font-sans text-gray-500 text-xs sm:text-sm leading-relaxed border-l-2 border-[#1B49B8] pl-4 mb-8">

@@ -46,10 +46,10 @@ export default function PrivacyPolicy({ onScrollToSection }: PrivacyPolicyProps)
         <div className="w-full border-b border-gray-100 py-10 px-6 sm:px-12 md:px-20 lg:px-32">
           <div className="space-y-4">
             <h2 className="font-display font-black text-xl sm:text-2xl text-black uppercase tracking-tight">
-              J/G Engineering Services Privacy Pledge
+              J/G Construction Services Privacy Pledge
             </h2>
             <p className="font-sans text-gray-700 text-sm sm:text-base leading-relaxed">
-              At <strong>J/G Engineering Services</strong>, we value the trust our clients place in us. That trust forms the bedrock of our service commitment. We are fully committed to protecting your personal data and ensuring compliance with all applicable legal requirements, including the <strong>Philippines Data Privacy Act of 2012 (Republic Act No. 10173)</strong>.
+              At <strong>J/G Construction Services</strong>, we value the trust our clients place in us. That trust forms the bedrock of our service commitment. We are fully committed to protecting your personal data and ensuring compliance with all applicable legal requirements, including the <strong>Philippines Data Privacy Act of 2012 (Republic Act No. 10173)</strong>.
             </p>
             <p className="font-sans text-gray-700 text-sm sm:text-base leading-relaxed">
               This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website, engage our engineering or general contracting services, or interact with our management team.
@@ -153,7 +153,7 @@ export default function PrivacyPolicy({ onScrollToSection }: PrivacyPolicyProps)
               3. Information Sharing and Disclosure
             </h3>
             <p className="font-sans text-gray-600 text-sm leading-relaxed">
-              J/G Engineering Services does not sell, trade, or lease your personal data. We only share information with certified entities necessary to complete building operations:
+              J/G Construction Services does not sell, trade, or lease your personal data. We only share information with certified entities necessary to complete building operations:
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
@@ -276,7 +276,7 @@ export default function PrivacyPolicy({ onScrollToSection }: PrivacyPolicyProps)
               <div className="p-5 bg-white border border-gray-200 font-sans space-y-3">
                 <div className="flex gap-2.5 items-center">
                   <Shield className="h-4 w-4 text-industrial-red shrink-0" />
-                  <span className="font-mono text-xs font-bold text-gray-800">J/G Engineering Services</span>
+                  <span className="font-mono text-xs font-bold text-gray-800">J/G Construction Services</span>
                 </div>
                 <div className="flex gap-2.5 items-center pb-2 border-b border-gray-100">
                   <User className="h-4 w-4 text-gray-400 shrink-0" />

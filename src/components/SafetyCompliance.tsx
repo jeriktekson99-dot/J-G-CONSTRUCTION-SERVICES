@@ -49,7 +49,7 @@ export default function SafetyCompliance({ onScrollToSection }: SafetyCompliance
               Safety First, Precision Always
             </h2>
             <p className="font-sans text-gray-700 text-sm sm:text-base leading-relaxed">
-              At <strong>J/G Engineering Services</strong>, structural precision and operational safety are inseparable. We believe that every accident is preventable, and we are completely dedicated to maintaining a zero-incident, hazard-free workplace across all our structural design, civil engineering, general contracting, and renovation projects.
+              At <strong>J/G Construction Services</strong>, structural precision and operational safety are inseparable. We believe that every accident is preventable, and we are completely dedicated to maintaining a zero-incident, hazard-free workplace across all our structural design, civil engineering, general contracting, and renovation projects.
             </p>
             <p className="font-sans text-gray-700 text-sm sm:text-base leading-relaxed">
               This Safety Standard Compliance Policy outlines our comprehensive technical guidelines, operational protocols, and mandatory protection requirements. It is designed to ensure strict compliance with the <strong>Philippine Occupational Safety and Health Standards (OSHS)</strong>, <strong>Republic Act No. 11058 (An Act Strengthening Compliance with OSH Standards)</strong>, and <strong>DOLE Department Order No. 13 (Guidelines Governing Occupational Safety and Health in the Construction Industry)</strong>.
@@ -71,7 +71,7 @@ export default function SafetyCompliance({ onScrollToSection }: SafetyCompliance
               <div className="flex gap-2.5 items-start">
                 <div className="h-1.5 w-1.5 bg-industrial-red shrink-0 mt-1.5"></div>
                 <div>
-                  <strong>Construction Safety and Health Program (CSHP):</strong> Every project undertaken by J/G Engineering Services operates under a localized CSHP approved by the Department of Labor and Employment (DOLE).
+                  <strong>Construction Safety and Health Program (CSHP):</strong> Every project undertaken by J/G Construction Services operates under a localized CSHP approved by the Department of Labor and Employment (DOLE).
                 </div>
               </div>
               <div className="flex gap-2.5 items-start">
@@ -203,7 +203,7 @@ export default function SafetyCompliance({ onScrollToSection }: SafetyCompliance
               <div className="flex gap-2.5 items-start">
                 <div className="h-1.5 w-1.5 bg-engineering-blue shrink-0 mt-1.5"></div>
                 <div>
-                  <strong>Safety Inductions:</strong> New hires, tradesmen, and finishing sub-contractors must clear a formal safety induction outlining J/G Engineering Services' strict zero-incident parameters before gaining access to any structural workspace.
+                  <strong>Safety Inductions:</strong> New hires, tradesmen, and finishing sub-contractors must clear a formal safety induction outlining J/G Construction Services' strict zero-incident parameters before gaining access to any structural workspace.
                 </div>
               </div>
             </div>
@@ -292,7 +292,7 @@ export default function SafetyCompliance({ onScrollToSection }: SafetyCompliance
               <div className="p-5 bg-white border border-gray-200 font-sans space-y-3">
                 <div className="flex gap-2.5 items-center">
                   <Shield className="h-4 w-4 text-industrial-red shrink-0" />
-                  <span className="font-mono text-xs font-bold text-gray-800">J/G Engineering Services</span>
+                  <span className="font-mono text-xs font-bold text-gray-800">J/G Construction Services</span>
                 </div>
                 <div className="flex gap-2.5 items-center pb-2 border-b border-gray-100">
                   <User className="h-4 w-4 text-gray-400 shrink-0" />
