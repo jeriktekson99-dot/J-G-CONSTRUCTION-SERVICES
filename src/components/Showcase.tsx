@@ -9,7 +9,36 @@ interface ShowcaseProps {
 }
 
 export default function Showcase({ onScrollToSection, onSelectProject }: ShowcaseProps) {
-  const dbProjects = dataStore.getProjects(false).filter(p => p.status === 'Completed') as unknown as Project[];
+  const dbProjects = (dataStore.getProjects(false) as unknown as Project[])
+    .filter(p => p.status === 'Completed')
+    .sort((a, b) => {
+      // Primary: compare updatedAt
+      if (a.updatedAt !== undefined || b.updatedAt !== undefined) {
+        return (b.updatedAt || 0) - (a.updatedAt || 0);
+      }
+      
+      // Secondary: parse timestamp from IDs if they are of form "proj-<timestamp>"
+      const getTimestamp = (idStr: string) => {
+        const parts = idStr.split('-');
+        if (parts.length > 1) {
+          const num = parseInt(parts[1], 10);
+          if (!isNaN(num) && num > 100000) {
+            return num;
+          }
+        }
+        return 0;
+      };
+      
+      const tsA = getTimestamp(a.id);
+      const tsB = getTimestamp(b.id);
+      if (tsA !== tsB) {
+        return tsB - tsA;
+      }
+      
+      // Tertiary: fallback to ID alphabetical comparison
+      return b.id.localeCompare(a.id);
+    })
+    .slice(0, 3);
 
   return (
     <section 

@@ -27,6 +27,7 @@ export interface Project {
   description: string;
   status: 'Completed' | 'Ongoing';
   isDeleted?: boolean;
+  updatedAt?: number;
 }
 
 export interface ServiceItem {
@@ -381,7 +382,38 @@ export const dataStore = {
       localStorage.setItem('jg_projects', JSON.stringify(DEFAULT_PROJECTS));
       return DEFAULT_PROJECTS;
     }
-    const projects: Project[] = JSON.parse(raw);
+    let projects: Project[] = JSON.parse(raw);
+    
+    // Auto-migrate stale path prefixes from "/src/assets/images/" to "/assets/images/"
+    let migrated = false;
+    projects = projects.map(p => {
+      let pMigrated = false;
+      let img = p.image;
+      if (img && img.startsWith('/src/assets/images/')) {
+        img = img.replace('/src/assets/images/', '/assets/images/');
+        pMigrated = true;
+      }
+      let imgs = p.images;
+      if (imgs && imgs.length > 0) {
+        imgs = imgs.map(item => {
+          if (item && item.startsWith('/src/assets/images/')) {
+            pMigrated = true;
+            return item.replace('/src/assets/images/', '/assets/images/');
+          }
+          return item;
+        });
+      }
+      if (pMigrated) {
+        migrated = true;
+        return { ...p, image: img, images: imgs };
+      }
+      return p;
+    });
+
+    if (migrated) {
+      localStorage.setItem('jg_projects', JSON.stringify(projects));
+    }
+
     return includeDeleted ? projects : projects.filter(p => !p.isDeleted);
   },
 
@@ -393,13 +425,14 @@ export const dataStore = {
     if (!isClient) return;
     const projects = this.getProjects(true);
     const index = projects.findIndex(p => p.id === project.id);
+    const updatedProject = { ...project, updatedAt: Date.now() };
     if (index >= 0) {
-      projects[index] = project;
+      projects[index] = updatedProject;
     } else {
-      projects.unshift(project);
+      projects.unshift(updatedProject);
     }
     localStorage.setItem('jg_projects', JSON.stringify(projects));
-    supabaseSync.pushProject(project);
+    supabaseSync.pushProject(updatedProject);
   },
 
   deleteProjectSoft(id: string): void {
