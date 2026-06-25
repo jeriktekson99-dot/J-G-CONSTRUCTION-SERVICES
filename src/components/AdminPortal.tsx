@@ -1170,7 +1170,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                 {/* Fault Detection Layout */}
                 {authError && (
                   <div className="border border-industrial-red bg-red-50 p-4 mb-6 text-xs text-industrial-red text-left">
-                    <strong>Error: Invalid email or security passphrase. Please try again.</strong>
+                    <strong>{authError}</strong>
                   </div>
                 )}
 
