@@ -206,9 +206,6 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
               <h1 className="font-display font-extrabold text-[#111111] text-3xl sm:text-4xl lg:text-5xl tracking-tight uppercase leading-none">
                 Our Services
               </h1>
-              <p className="font-mono text-xs text-gray-500 mt-2 uppercase tracking-wide">
-                Comprehensive technical scope, key performance benchmarks, and mathematical delivery equations
-              </p>
             </div>
           </div>
         </div>

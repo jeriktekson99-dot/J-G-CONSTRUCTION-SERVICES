@@ -251,10 +251,10 @@ export default function About({ onScrollToSection }: AboutProps) {
               <div className="border border-black p-3 bg-white shadow-[8px_8px_0px_#111111]">
                 <div className="aspect-16/10 bg-gray-50 overflow-hidden border border-gray-100">
                   <img 
-                    src="/assets/images/blueprint_cad_1780503663960.png" 
+                    src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAE533yjB7GYRdibTnKQGBnBwcwra53uc0h4ylzc0gHl5giFGMBldYf-8JQRxKEHv_CheVBwtiQstMfIUgQv1WulXe3PJaSzOQJVb3Gd-27RFC4vdoiVlGxQF1wx-15Suxtc3wcyUsDK0q_Z=s1360-w1360-h1020-rw" 
                     alt="Founding blueprint and design concepts of J/G Services" 
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover grayscale block" 
+                    className="w-full h-full object-cover block" 
                   />
                 </div>
                 <div className="mt-3 flex items-center justify-between font-mono text-[10px] text-gray-400">
@@ -278,10 +278,10 @@ export default function About({ onScrollToSection }: AboutProps) {
               <div className="border border-black p-3 bg-white shadow-[8px_8px_0px_#111111]">
                 <div className="aspect-16/10 bg-gray-50 overflow-hidden border border-gray-100">
                   <img 
-                    src="/assets/images/about_construction_site_1780503065020.png" 
+                    src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAEEZMoPkiHPX-7DaQKjl2gXukLBQVDueYqKL6g_k1yUpvdlt-K8Tmh405-fMtGPCtIXHXZKrC2vkGFCWc0EJknndyEgOHg-PfjiiHa7Pz5ZrpXNB2t3bC2vVYvN89bycae8zFcS3jg-DT5c=s1360-w1360-h1020-rw" 
                     alt="Active on-site J/G engineering finishing operations" 
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover grayscale block" 
+                    className="w-full h-full object-cover block" 
                   />
                 </div>
                 <div className="mt-3 flex items-center justify-between font-mono text-[10px] text-gray-400">
@@ -426,10 +426,10 @@ export default function About({ onScrollToSection }: AboutProps) {
               <div className="border-2 border-black p-3 bg-white shadow-[8px_8px_0px_#1B49B8] h-full flex flex-col justify-between">
                 <div className="aspect-[10/11] bg-gray-50 overflow-hidden border border-gray-100 flex-1">
                   <img 
-                    src="/assets/images/field_excellence_operations_1780503096054.png" 
+                    src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAE50VW8A_69lI06KGmt4VV1EnTtIziQWD6G9hTUifBaAewOIhfMmivyOGMHm0rGyqoL3uxvu8i5gvrvyoOXo5sEBJ-jeMIWy7M-qeRFbzGiUtlwq4wiJPDNawSgvv_Np9nIS96sRg6PrgLK=s1360-w1360-h1020-rw" 
                     alt="Inspection of on-site engineering workmanship" 
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover grayscale" 
+                    className="w-full h-full object-cover" 
                   />
                 </div>
                 <div className="mt-3 flex items-center justify-between font-mono text-[10px] text-gray-500 shrink-0">

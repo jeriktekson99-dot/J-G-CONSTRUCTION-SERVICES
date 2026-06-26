@@ -38,7 +38,7 @@ export default function Showcase({ onScrollToSection, onSelectProject }: Showcas
       // Tertiary: fallback to ID alphabetical comparison
       return b.id.localeCompare(a.id);
     })
-    .slice(0, 3);
+    .slice(0, 6);
 
   return (
     <section 

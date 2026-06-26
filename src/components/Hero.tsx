@@ -120,7 +120,7 @@ export default function Hero({ onGetStarted, onViewProjects }: HeroProps) {
                 href="https://drive.google.com/file/d/17fBWhPV7siUd14L9xyX0LCHIigoNxgiX/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white hover:bg-gray-50 text-black border-2 border-black font-display font-bold py-4 px-8 rounded-none transition-all duration-300 text-center cursor-pointer inline-flex items-center justify-center"
+                className="bg-white hover:bg-gray-50 text-black border-2 border-black font-display font-bold py-4 px-8 rounded-none transition-all duration-300 text-center cursor-pointer inline-flex items-center justify-center shadow-[4px_4px_0px_#111111] active:shadow-[0px_0px_0px_#111111] transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 Company Profile
               </a>

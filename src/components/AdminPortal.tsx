@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Shield, 
@@ -73,6 +73,14 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   const [recoveryError, setRecoveryError] = useState('');
   const [recoverySuccess, setRecoverySuccess] = useState('');
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+
+  // Logged-in Change Password States (under Settings tab)
+  const [oldPasswordVal, setOldPasswordVal] = useState('');
+  const [changePasswordVal, setChangePasswordVal] = useState('');
+  const [changeConfirmPasswordVal, setChangeConfirmPasswordVal] = useState('');
+  const [changePasswordError, setChangePasswordError] = useState('');
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState('');
+  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
 
   // Active Panel/View states inside Dashboard
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
@@ -183,6 +191,42 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   const [perfYear, setPerfYear] = useState<number>(2026); // Default to 2026
   const [historicalRecords, setHistoricalRecords] = useState<HistoricalRecord[]>([]);
   const [hoveredPoint, setHoveredPoint] = useState<{ index: number; x: number; y: number; val: number } | null>(null);
+
+  // Ref for yearly performance sub-grid horizontal scroll
+  const yearlyScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleYearlyScrollDrag = (e: React.MouseEvent<HTMLDivElement>) => {
+    const ele = yearlyScrollRef.current;
+    if (!ele) return;
+    
+    const startX = e.pageX - ele.offsetLeft;
+    const scrollLeft = ele.scrollLeft;
+    
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const x = moveEvent.pageX - ele.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      ele.scrollLeft = scrollLeft - walk;
+    };
+    
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // Real-time automatic telemetry update interval
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    
+    const interval = setInterval(() => {
+      refreshDataCollections();
+    }, 4000); // Poll and reload data in real-time every 4 seconds
+    
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   // Dialog Overlay and alert banner state
   const [dialog, setDialog] = useState<{
@@ -377,6 +421,76 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
       console.error(err);
     } finally {
       setRecoveryLoading(false);
+    }
+  };
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangePasswordError('');
+    setChangePasswordSuccess('');
+
+    if (!oldPasswordVal) {
+      setChangePasswordError('ERROR: RETYPE OLD PASSWORD FIELD CANNOT BE EMPTY.');
+      return;
+    }
+    if (!changePasswordVal) {
+      setChangePasswordError('ERROR: PASSWORD FIELD CANNOT BE EMPTY.');
+      return;
+    }
+    if (changePasswordVal !== changeConfirmPasswordVal) {
+      setChangePasswordError('ERROR: PASSWORD VERIFICATION PHRASE DOES NOT ALIGN.');
+      return;
+    }
+    if (changePasswordVal.length < 6) {
+      setChangePasswordError('ERROR: SYSTEM SECURITY RULES ENFORCE A MINIMUM OF 6 CHARACTERS.');
+      return;
+    }
+    if (!isSupabaseConfigured || !supabase) {
+      setChangePasswordError('ERROR: SUPABASE ENGINE DISCONNECTED.');
+      return;
+    }
+
+    setChangePasswordLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !user.email) {
+        setChangePasswordError('ERROR: NO ACTIVE SESSION DETECTED.');
+        setChangePasswordLoading(false);
+        return;
+      }
+
+      // Re-authenticate user to verify old password
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: oldPasswordVal,
+      });
+
+      if (verifyError) {
+        setChangePasswordError('ERROR: OLD PASSWORD VERIFICATION FAILED.');
+        addLogEntry('CHG_PASS_FAIL', 'Failed to rotate password due to incorrect old password.');
+        setChangePasswordLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({
+        password: changePasswordVal,
+      });
+
+      if (error) {
+        setChangePasswordError(`ERROR: ${error.message.toUpperCase()}`);
+        addLogEntry('CHG_PASS_FAIL', `Failed to change password: ${error.message}`);
+      } else {
+        setChangePasswordSuccess('SUCCESS: SECURITY KEY UPDATED. ACCOUNT PASSWORD ROTATED SUCCESSFULLY.');
+        addLogEntry('CHG_PASS_SUCCESS', 'Administrative password updated successfully via secure control panel.');
+        setOldPasswordVal('');
+        setChangePasswordVal('');
+        setChangeConfirmPasswordVal('');
+      }
+    } catch (err: any) {
+      setChangePasswordError('ERROR: SYSTEM EXCEPTION HANDLED DURING KEY ROTATION.');
+      console.error(err);
+    } finally {
+      setChangePasswordLoading(false);
     }
   };
 
@@ -835,86 +949,27 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     ];
 
     if (perfViewMode === 'MONTHLY') {
-      // Current active month check (June 2026)
-      if (perfYear === 2026 && perfMonth === 5) {
-        const june2026Points = dataStore.getLeadsMetricsForMonth(2026, 5);
-        return {
-          type: 'MONTHLY',
-          label: 'June 2026 (Active Month)',
-          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-          dataPoints: june2026Points,
-          totalLeads: june2026Points.reduce((a, b) => a + b, 0)
-        };
-      }
-
-      // Check archived monthly record
-      const recordKey = `${perfYear}-${String(perfMonth + 1).padStart(2, '0')}`;
-      const record = historicalRecords.find(r => r.id === recordKey && r.type === 'MONTHLY');
-      if (record) {
-        return {
-          type: 'MONTHLY',
-          label: record.label,
-          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-          dataPoints: record.dataPoints,
-          totalLeads: record.totalLeads
-        };
-      }
-
-      // Compute dynamically
       const computedPoints = dataStore.getLeadsMetricsForMonth(perfYear, perfMonth);
+      const isCurrentActive = perfYear === 2026 && perfMonth === 5;
       return {
         type: 'MONTHLY',
-        label: `${monthNames[perfMonth]} ${perfYear}`,
+        label: isCurrentActive ? 'June 2026 (Active Month)' : `${monthNames[perfMonth]} ${perfYear}`,
         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         dataPoints: computedPoints,
         totalLeads: computedPoints.reduce((a, b) => a + b, 0)
       };
     } else {
       // YEARLY view mode
-      if (perfYear === 2026) {
-        const june2026Points = dataStore.getLeadsMetricsForMonth(2026, 5);
-        const juneTotal = june2026Points.reduce((a, b) => a + b, 0);
-        
-        const janVal = 18;
-        const febVal = 22;
-        const marRecord = historicalRecords.find(r => r.id === '2026-03');
-        const marVal = marRecord ? marRecord.totalLeads : 50;
-        const aprRecord = historicalRecords.find(r => r.id === '2026-04');
-        const aprVal = aprRecord ? aprRecord.totalLeads : 55;
-        const mayRecord = historicalRecords.find(r => r.id === '2026-05');
-        const mayVal = mayRecord ? mayRecord.totalLeads : 67;
-        
-        const yearlyPoints = [janVal, febVal, marVal, aprVal, mayVal, juneTotal, 0, 0, 0, 0, 0, 0];
-        return {
-          type: 'YEARLY',
-          label: '2026 Fiscal Year (Active)',
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-          dataPoints: yearlyPoints,
-          totalLeads: yearlyPoints.reduce((a, b) => a + b, 0)
-        };
-      }
-
-      // Check archived yearly record
-      const recordKey = `${perfYear}-fiscal`;
-      const record = historicalRecords.find(r => r.id === recordKey && r.type === 'YEARLY');
-      if (record) {
-        return {
-          type: 'YEARLY',
-          label: record.label,
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-          dataPoints: record.dataPoints,
-          totalLeads: record.totalLeads
-        };
-      }
-
-      // Generative fallback
-      const fallbackPoints = [12, 15, 18, 22, 25, 20, 24, 28, 30, 26, 24, 29];
+      const yearlyPoints = Array.from({ length: 12 }, (_, mIdx) => {
+        const points = dataStore.getLeadsMetricsForMonth(perfYear, mIdx);
+        return points.reduce((sum, val) => sum + val, 0);
+      });
       return {
         type: 'YEARLY',
         label: `${perfYear} Fiscal Year`,
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        dataPoints: fallbackPoints,
-        totalLeads: fallbackPoints.reduce((a, b) => a + b, 0)
+        dataPoints: yearlyPoints,
+        totalLeads: yearlyPoints.reduce((a, b) => a + b, 0)
       };
     }
   };
@@ -1018,7 +1073,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                       onChange={(e) => setRecoveryPassword(e.target.value)}
                       onFocus={() => setFocusedField('recoveryPassword')}
                       onBlur={() => setFocusedField(null)}
-                      placeholder="••••••••"
+                      placeholder=""
                       className={`w-full bg-white px-3.5 py-3 text-xs font-mono placeholder-gray-400 text-black border outline-none transition-all duration-75 ${
                         focusedField === 'recoveryPassword' ? 'border-industrial-red' : 'border-black'
                       }`}
@@ -1037,7 +1092,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                       onChange={(e) => setRecoveryConfirmPassword(e.target.value)}
                       onFocus={() => setFocusedField('recoveryConfirmPassword')}
                       onBlur={() => setFocusedField(null)}
-                      placeholder="••••••••"
+                      placeholder=""
                       className={`w-full bg-white px-3.5 py-3 text-xs font-mono placeholder-gray-400 text-black border outline-none transition-all duration-75 ${
                         focusedField === 'recoveryConfirmPassword' ? 'border-industrial-red' : 'border-black'
                       }`}
@@ -1116,7 +1171,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                       onChange={(e) => setResetEmail(e.target.value)}
                       onFocus={() => setFocusedField('resetEmail')}
                       onBlur={() => setFocusedField(null)}
-                      placeholder="admin@jgengineering.com"
+                      placeholder=""
                       className={`w-full bg-white px-3.5 py-3 text-xs font-mono placeholder-gray-400 text-black border outline-none transition-all duration-75 ${
                         focusedField === 'resetEmail' ? 'border-industrial-red' : 'border-black'
                       }`}
@@ -1189,7 +1244,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                       onChange={(e) => setEmail(e.target.value)}
                       onFocus={() => setFocusedField('email')}
                       onBlur={() => setFocusedField(null)}
-                      placeholder="admin@jgengineering.com"
+                      placeholder=""
                       className={`w-full bg-white px-3.5 py-3 text-xs font-mono placeholder-gray-400 text-black border outline-none transition-all duration-75 ${
                         focusedField === 'email' ? 'border-industrial-red' : 'border-black'
                       }`}
@@ -1222,7 +1277,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                       onChange={(e) => setPassword(e.target.value)}
                       onFocus={() => setFocusedField('password')}
                       onBlur={() => setFocusedField(null)}
-                      placeholder="••••••••"
+                      placeholder=""
                       className={`w-full bg-white px-3.5 py-3 text-xs font-mono placeholder-gray-400 text-black border outline-none transition-all duration-75 ${
                         focusedField === 'password' ? 'border-industrial-red' : 'border-black'
                       }`}
@@ -1510,11 +1565,15 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                     <div>
                       {/* Header row with Title & Category Dropdown */}
                       <div className="flex flex-col xl:flex-row xl:items-center justify-between border-b border-black pb-4 mb-5 gap-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <TrendingUp className="h-4 w-4 text-industrial-red animate-pulse" />
                           <h3 className="font-display font-black text-xs uppercase tracking-wider text-black">
                             LEADS ACQUISITION PERFORMANCE
                           </h3>
+                          <div className="flex items-center gap-1.5 px-1.5 py-0.5 bg-emerald-50 border border-emerald-400 text-emerald-800 text-[8px] font-mono font-bold tracking-widest uppercase">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                            <span>REAL TIME</span>
+                          </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
                           {/* Granular drop-downs depending on mode */}
@@ -1704,9 +1763,16 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
 
                       {/* Conditional Breakdown Sub-Grid */}
                       <div className="space-y-3">
-                        <p className="font-mono text-[9px] text-gray-500 uppercase tracking-wider">
-                          // BREAKDOWN SUB-GRID MATRIX ({perfData.type} SCOPE) //
-                        </p>
+                        <div className="flex justify-between items-center">
+                          <p className="font-mono text-[9px] text-gray-500 uppercase tracking-wider">
+                            // BREAKDOWN SUB-GRID MATRIX ({perfData.type} SCOPE) //
+                          </p>
+                          {perfData.type === 'YEARLY' && (
+                            <span className="font-mono text-[8px] text-industrial-red font-bold uppercase tracking-wider animate-pulse">
+                              ← SWIPE / DRAG TO VIEW ALL MONTHS →
+                            </span>
+                          )}
+                        </div>
                         
                         {perfData.type === 'MONTHLY' ? (
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1723,17 +1789,27 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                             ))}
                           </div>
                         ) : (
-                          <div className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-12 gap-1.5">
+                          <div 
+                            ref={yearlyScrollRef}
+                            onMouseDown={handleYearlyScrollDrag}
+                            className="flex gap-3 overflow-x-auto no-scrollbar pb-1 cursor-grab active:cursor-grabbing select-none"
+                            style={{ scrollSnapType: 'x mandatory' }}
+                          >
                             {perfData.labels.map((label, idx) => {
                               const val = perfData.dataPoints[idx];
                               return (
-                                <div key={idx} className="border border-black p-1.5 bg-white shadow-[1px_1px_0px_#000000] flex flex-col justify-between text-center min-h-[55px]">
-                                  <span className="font-mono text-[8px] font-bold uppercase text-gray-400">
-                                    {label}
+                                <div 
+                                  key={idx} 
+                                  className="border border-black p-3 bg-white shadow-[2px_2px_0px_#000000] flex flex-col justify-between min-h-[70px] min-w-[130px] sm:min-w-[160px] shrink-0"
+                                  style={{ scrollSnapAlign: 'start' }}
+                                >
+                                  <span className="font-mono text-[9px] font-black uppercase text-gray-400">
+                                    [ {label.toUpperCase()} ]
                                   </span>
-                                  <span className="font-display font-black text-xs text-black mt-1">
-                                    {val}
-                                  </span>
+                                  <div className="flex justify-between items-baseline mt-1">
+                                    <span className="font-display font-black text-lg text-black">{val}</span>
+                                    <span className="font-mono text-[8px] text-emerald-700 font-bold">Inbounds</span>
+                                  </div>
                                 </div>
                               );
                             })}
@@ -1867,27 +1943,73 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                     </div>
                     
                     <p className="font-mono text-[10px] text-gray-500 uppercase leading-relaxed">
-                      // ADMINISTRATIVE CREDENTIALS SECURITY HANDLED BY SUPABASE AUTHENTICATION //
+                      // ROTATE CURRENT ADMINISTRATIVE ACCESS CREDENTIALS //
                     </p>
 
-                    <div className="p-4 bg-gray-50 border border-gray-200 space-y-3 font-sans text-xs text-gray-700 leading-relaxed">
-                      <p>
-                        This portal utilizes <strong>Supabase Auth</strong> for enterprise-grade authentication security.
-                      </p>
-                      <p>
-                        Since local fallback credentials have been completely deprecated and removed for security compliance, all administrative users must be registered in your cloud provider console.
-                      </p>
-                      <div className="pt-2">
-                        <span className="font-mono text-[10px] bg-black text-white px-2 py-1 uppercase tracking-wider font-bold inline-block">
-                          MANAGEMENT WORKFLOW:
-                        </span>
-                        <ol className="list-decimal list-inside space-y-1.5 mt-2 text-[11px] text-gray-600 font-mono">
-                          <li>Go to your Supabase Project Dashboard</li>
-                          <li>Navigate to <strong className="text-black">Authentication</strong> &gt; <strong className="text-black">Users</strong></li>
-                          <li>Create, reset, or remove administrative credentials safely</li>
-                        </ol>
+                    <form onSubmit={handleChangePasswordSubmit} className="space-y-4">
+                      {changePasswordError && (
+                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 font-mono text-[10px] uppercase">
+                          {changePasswordError}
+                        </div>
+                      )}
+                      
+                      {changePasswordSuccess && (
+                        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 font-mono text-[10px] uppercase">
+                          {changePasswordSuccess}
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="block font-mono text-[9px] font-bold uppercase tracking-wider mb-1.5 text-black">
+                          RETYPE OLD PASSWORD
+                        </label>
+                        <input
+                          id="change-password-old"
+                          type="password"
+                          placeholder=""
+                          value={oldPasswordVal}
+                          onChange={(e) => setOldPasswordVal(e.target.value)}
+                          className="w-full bg-white border border-black px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red text-black"
+                        />
                       </div>
-                    </div>
+
+                      <div>
+                        <label className="block font-mono text-[9px] font-bold uppercase tracking-wider mb-1.5 text-black">
+                          NEW ACCESS PASSWORD
+                        </label>
+                        <input
+                          id="change-password-input"
+                          type="password"
+                          placeholder=""
+                          value={changePasswordVal}
+                          onChange={(e) => setChangePasswordVal(e.target.value)}
+                          className="w-full bg-white border border-black px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red text-black"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block font-mono text-[9px] font-bold uppercase tracking-wider mb-1.5 text-black">
+                          CONFIRM NEW PASSWORD
+                        </label>
+                        <input
+                          id="change-password-confirm"
+                          type="password"
+                          placeholder=""
+                          value={changeConfirmPasswordVal}
+                          onChange={(e) => setChangeConfirmPasswordVal(e.target.value)}
+                          className="w-full bg-white border border-black px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red text-black"
+                        />
+                      </div>
+
+                      <button
+                        id="submit-password-rotation"
+                        type="submit"
+                        disabled={changePasswordLoading}
+                        className="w-full bg-industrial-red hover:bg-[#B31717] disabled:opacity-50 text-white py-2.5 px-4 font-mono font-black text-[10px] uppercase tracking-wider border border-black transition-all cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        {changePasswordLoading ? 'ROTATING SECURITY KEY...' : 'ROTATE CREDENTIALS'}
+                      </button>
+                    </form>
                   </div>
 
                   {/* Container 2: Social Media Link Integrations */}

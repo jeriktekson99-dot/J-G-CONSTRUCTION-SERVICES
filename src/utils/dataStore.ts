@@ -654,7 +654,7 @@ export const dataStore = {
 
   getLeadsMetricsForMonth(year: number, monthIndex: number): number[] {
     const leads = this.getLeads(true);
-    const basePoints = [12, 16, 14, 10];
+    const basePoints = [0, 0, 0, 0];
     const monthPrefix = `${year}-${String(monthIndex + 1).padStart(2, '0')}`;
     const monthlyLeads = leads.filter(l => !l.isDeleted && l.timestamp.startsWith(monthPrefix));
     

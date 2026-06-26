@@ -56,17 +56,20 @@ export default function ProblemSolution() {
               </div>
             </div>
 
-            {/* Right Split (45%): Visual Context - Risk Analysis Image */}
+            {/* Right Split (45%): Visual Context - Risk Analysis Image (Polaroid format) */}
             <div className="w-full lg:w-[45%] flex flex-col justify-center">
-              <div className="relative">
-                <img 
-                  src="/assets/images/risk_metrics_concept_1780570881461.png" 
-                  alt="Risk Analysis - Crumbling structural beam failure mode" 
-                  referrerPolicy="no-referrer"
-                  className="w-full h-auto object-cover border-2 border-black shadow-[6px_6px_0px_#111111]"
-                />
-                <div className="absolute bottom-3 left-3 bg-black text-white px-3 py-1 font-mono text-[10px] uppercase tracking-wider">
-                  Fig 1.1 // STRUCTURAL_STRESS_FAILURE
+              <div className="border border-black p-3 bg-white shadow-[8px_8px_0px_#111111]">
+                <div className="aspect-[4/3] bg-gray-50 overflow-hidden border border-gray-100">
+                  <img 
+                    src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAEDFOO-UkEUIMj49LQjijaXmw4hhypx3TDOLtPKf9EbWCIlLL_igh8EpQAyYzPxCF3wwRgGOjLn6Pe8uRhhqgL5LVh-5rvaufqa5wSaB22gc4W42TiIP_lSk0tFF_CEZAKPEZ2tFxAcVuS2=s1360-w1360-h1020-rw" 
+                    alt="Risk Analysis - Crumbling structural beam failure mode" 
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover block" 
+                  />
+                </div>
+                <div className="mt-3 flex items-center justify-between font-mono text-[10px] text-gray-500">
+                  <span>PLATE // RISK ANALYSIS [01]</span>
+                  <span>STRUCTURAL FAIL</span>
                 </div>
               </div>
             </div>
@@ -128,17 +131,20 @@ export default function ProblemSolution() {
               </div>
             </div>
 
-            {/* Right Split (45%): Visual Context - Solution Blueprint Image */}
+            {/* Right Split (45%): Visual Context - Solution Blueprint Image (Polaroid format) */}
             <div className="w-full lg:w-[45%] flex flex-col justify-center lg:order-1">
-              <div className="relative">
-                <img 
-                  src="/assets/images/secure_solution_blueprint_1780570898725.png" 
-                  alt="Solution Statement - Unified blueprint coordinate model simulation" 
-                  referrerPolicy="no-referrer"
-                  className="w-full h-auto object-cover border-2 border-black shadow-[6px_6px_0px_#1B49B8]"
-                />
-                <div className="absolute bottom-3 left-3 bg-[#1B49B8] text-white px-3 py-1 font-mono text-[10px] uppercase tracking-wider">
-                  Fig 2.1 // ZERO_ERRORS_SIMULATION_OK
+              <div className="border border-black p-3 bg-white shadow-[8px_8px_0px_#1B49B8]">
+                <div className="aspect-[4/3] bg-gray-50 overflow-hidden border border-gray-100">
+                  <img 
+                    src="https://lh3.googleusercontent.com/gps-cs-s/APNQkAErTq1mGdh2UpoP8k-9u470Je2dQxW83NZQ-AIVqNYDKy05Ce6CgcFjEYIKeceawccN_pn5x4iDhgiI3h3xrMVVz9LXPMDDQ8xFt6q_spSrcJTGrohiEbuo3bBZsBYvXv70in_JZebDe-Ym=s1360-w1360-h1020-rw" 
+                    alt="Solution Statement - Unified blueprint coordinate model simulation" 
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover block" 
+                  />
+                </div>
+                <div className="mt-3 flex items-center justify-between font-mono text-[10px] text-[#1B49B8]">
+                  <span>PLATE // J/G SOLUTION [02]</span>
+                  <span>ZERO ERRORS SIM</span>
                 </div>
               </div>
             </div>
