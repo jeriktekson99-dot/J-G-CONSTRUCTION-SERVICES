@@ -6,62 +6,74 @@ import {
   ArrowRight,
   Paintbrush,
   Compass,
-  Zap
+  Zap,
+  Activity,
+  MapPin,
+  Layers,
+  Droplets
 } from 'lucide-react';
 
-export default function Services() {
+interface ServicesProps {
+  onScrollToSection?: (id: string) => void;
+}
+
+export default function Services({ onScrollToSection }: ServicesProps) {
   const services = [
     {
-      id: "architectural-finishing",
-      title: "Architectural & Finishing",
-      icon: Paintbrush,
-      accentColor: "border-t-4 border-t-industrial-red",
-      description: "Custom space planning, complete office & commercial fit-outs, partition layouts, carpentry, and premium surface finishing services.",
-      bulletPoints: [
-        "Floor space & interior optimization",
-        "Drywall partition and column systems",
-        "False ceiling & acoustical layouts",
-        "Aesthetic cabinetry & wood finishings"
-      ]
-    },
-    {
-      id: "civil-grading",
-      title: "Civil Works & Site Grading",
+      id: "ser-1",
+      title: "Architectural Planning & Drafting",
       icon: Compass,
-      accentColor: "border-t-4 border-t-engineering-blue",
-      description: "Comprehensive site preparation, volume earthworks balancing, storm drainage channels, and durable retaining slope walls.",
-      bulletPoints: [
-        "Civil storm-drainage layouts",
-        "Access roadways & pavement works",
-        "Site preparation & grading schemes",
-        "Slope stability retaining structures"
-      ]
+      accentColor: "border-t-4 border-t-industrial-red",
+      description: "Bespoke schematic spatial design, custom layouts, 3D renderings, and precise CAD elevations.",
     },
     {
-      id: "structural-concrete",
-      title: "Structural Design & Foundations",
+      id: "ser-2",
+      title: "Interior Fit-Out & Finishing",
+      icon: Paintbrush,
+      accentColor: "border-t-4 border-t-engineering-blue",
+      description: "Drywall partition structures, acoustical false ceilings, raised floor tiling, and custom carpentry.",
+    },
+    {
+      id: "ser-3",
+      title: "General Building Renovation",
+      icon: Activity,
+      accentColor: "border-t-4 border-t-industrial-red",
+      description: "Corporate office modernizations, load-bearing transfers, facade cladding, and structural repairs.",
+    },
+    {
+      id: "ser-4",
+      title: "Civil Works & Infrastructure",
+      icon: MapPin,
+      accentColor: "border-t-4 border-t-engineering-blue",
+      description: "Heavy site layout grading, volumetric balancing, storm drainage channels, and concrete roads.",
+    },
+    {
+      id: "ser-5",
+      title: "Structural Engineering & Design",
       icon: Building2,
       accentColor: "border-t-4 border-t-industrial-red",
-      description: "Rigid truss & framing designs, high-PSI concrete monolithic footing pours, seismic code alignment, and load-path stability calculation.",
-      bulletPoints: [
-        "Seismic load engineering calculations",
-        "Monolithic concrete mat footings",
-        "Steel roof truss shop details",
-        "Concrete column curing audits"
-      ]
+      description: "Finite element load modeling, dynamic seismic design, roof truss shop details, and wind computations.",
     },
     {
-      id: "electrical-plumbing",
-      title: "Electrical & Plumbing",
-      icon: Zap,
+      id: "ser-6",
+      title: "Foundations & Concrete Works",
+      icon: Layers,
       accentColor: "border-t-4 border-t-engineering-blue",
-      description: "Full-service utility integration, power load balance panelboards, fire-rated wiring paths, high-durability water loops, and wastewater venting stack layouts.",
-      bulletPoints: [
-        "Power distribution panel calculations",
-        "Conduit wiring installation schedules",
-        "Thermal PPR plumbing water loops",
-        "Hygienic sanitary stack venting"
-      ]
+      description: "Monolithic concrete mat footings, subgrade suitability profiling, pile caps, and curing audits.",
+    },
+    {
+      id: "ser-7",
+      title: "Electrical Systems Engineering",
+      icon: Zap,
+      accentColor: "border-t-4 border-t-industrial-red",
+      description: "Balanced power panel calculations, fire-rated conduit runs, auxiliary systems, and riser schemes.",
+    },
+    {
+      id: "ser-8",
+      title: "Plumbing & Sanitary Engineering",
+      icon: Droplets,
+      accentColor: "border-t-4 border-t-engineering-blue",
+      description: "Thermal PPR domestic water loops, sanitary stack venting, grease interceptors, and storm drainage.",
     }
   ];
 
@@ -89,14 +101,15 @@ export default function Services() {
           </p>
         </div>
 
-        {/* 4-Column Grid Layout */}
+        {/* 8-Column Grid Layout (Show 4 columns on large screens, 2 on medium, 1 on small) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
           {services.map((svc, idx) => {
             const IconComponent = svc.icon;
             return (
               <div
                 key={svc.id}
-                className={`bg-white border border-black p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-[6px_6px_0px_#111111] hover:-translate-y-1 group relative ${svc.accentColor}`}
+                onClick={() => onScrollToSection?.(svc.id)}
+                className={`bg-white border border-black p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-[6px_6px_0px_#111111] hover:-translate-y-1 group relative cursor-pointer ${svc.accentColor}`}
               >
                 {/* Structural Grid lines background overlay on hover to simulate engineering charts */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.02] pointer-events-none transition-opacity duration-300" style={{
@@ -115,16 +128,16 @@ export default function Services() {
                     </span>
                   </div>
 
-                  <h3 className="font-display font-extrabold text-[#111111] text-lg lg:text-xl tracking-tight mb-3 text-left">
+                  <h3 className="font-display font-extrabold text-[#111111] text-lg tracking-tight mb-2 text-left group-hover:text-industrial-red transition-colors">
                     {svc.title}
                   </h3>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between font-mono text-xs text-black font-bold">
-                  <span className="text-[10px] text-gray-400 group-hover:text-engineering-blue transition-colors">
+                <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between font-mono text-[10px] text-black font-bold">
+                  <span className="text-gray-400 group-hover:text-engineering-blue transition-colors">
                     STRUCTURAL_ASSURE_OK
                   </span>
-                  <div className="flex items-center gap-1 group-hover:text-industrial-red transition-colors">
+                  <div className="flex items-center gap-1 group-hover:text-industrial-red transition-colors text-xs">
                     <span>Details</span>
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </div>

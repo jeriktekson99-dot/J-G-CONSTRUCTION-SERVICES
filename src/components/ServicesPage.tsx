@@ -219,7 +219,8 @@ export default function ServicesPage({ onScrollToSection }: ServicesPageProps) {
             {servicesList.map((service, idx) => (
               <div 
                 key={service.id}
-                className="border-2 border-black bg-white p-6 sm:p-10 shadow-[6px_6px_0px_#111111] hover:shadow-[10px_10px_0px_#1B49B8] transition-all duration-300 text-left relative flex flex-col space-y-8 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-8 rounded-none"
+                id={service.id}
+                className="border-2 border-black bg-white p-6 sm:p-10 shadow-[6px_6px_0px_#111111] hover:shadow-[10px_10px_0px_#1B49B8] transition-all duration-300 text-left relative flex flex-col space-y-8 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-8 rounded-none scroll-mt-24"
               >
                 {/* Left Side: General Info & Performance Metric */}
                 <div className="lg:col-span-6 flex flex-col justify-between">

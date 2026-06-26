@@ -56,6 +56,13 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    if (id.startsWith('ser-')) {
+      setCurrentView('services');
+      setTimeout(() => {
+        scrollToElement(id);
+      }, 150);
+      return;
+    }
     // If not currently on the home view, switch to home first, then scroll
     if (currentView !== 'home') {
       setCurrentView('home');
@@ -126,7 +133,7 @@ export default function App() {
               <ProblemSolution />
               
               {/* Offered Services Section */}
-              <Services />
+              <Services onScrollToSection={handleScrollToSection} />
               
               {/* Project Showcases Section */}
               <Showcase 
