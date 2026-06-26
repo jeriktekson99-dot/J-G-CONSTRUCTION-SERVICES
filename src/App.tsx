@@ -29,12 +29,14 @@ import { supabaseSync } from './utils/supabaseSync';
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('home');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [syncVersion, setSyncVersion] = useState(0);
 
   // Sync data with Supabase database on mount
   useEffect(() => {
     supabaseSync.pullAll().then(() => {
       // Apply monthly leads rollover logic
       dataStore.checkAndApplyRollover();
+      setSyncVersion(prev => prev + 1);
     });
   }, []);
 
@@ -100,98 +102,100 @@ export default function App() {
       />
       
       {/* View Content Delivery */}
-      {selectedProject ? (
-        <ProjectShowcasePage 
-          project={selectedProject}
-          onBack={() => {
-            setSelectedProject(null);
-            // Scroll back to showcase section header if on home view
-            if (currentView === 'home') {
-              setTimeout(() => {
-                scrollToElement('showcase');
-              }, 100);
-            } else {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-          }}
-          onScrollToSection={(id) => {
-            setSelectedProject(null);
-            handleScrollToSection(id);
-          }}
-        />
-      ) : (
-        <>
-          {currentView === 'home' && (
-            <main>
-              {/* Hero Section with interactive CAD mockup */}
-              <Hero 
-                onGetStarted={() => setCurrentView('get-started')}
-                onViewProjects={() => handleScrollToSection('showcase')}
-              />
-              
-              {/* Problem Statement & Solution Statement Splits */}
-              <ProblemSolution />
-              
-              {/* Offered Services Section */}
-              <Services onScrollToSection={handleScrollToSection} />
-              
-              {/* Project Showcases Section */}
-              <Showcase 
+      <div key={syncVersion}>
+        {selectedProject ? (
+          <ProjectShowcasePage 
+            project={selectedProject}
+            onBack={() => {
+              setSelectedProject(null);
+              // Scroll back to showcase section header if on home view
+              if (currentView === 'home') {
+                setTimeout(() => {
+                  scrollToElement('showcase');
+                }, 100);
+              } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+            onScrollToSection={(id) => {
+              setSelectedProject(null);
+              handleScrollToSection(id);
+            }}
+          />
+        ) : (
+          <>
+            {currentView === 'home' && (
+              <main>
+                {/* Hero Section with interactive CAD mockup */}
+                <Hero 
+                  onGetStarted={() => setCurrentView('get-started')}
+                  onViewProjects={() => handleScrollToSection('showcase')}
+                />
+                
+                {/* Problem Statement & Solution Statement Splits */}
+                <ProblemSolution />
+                
+                {/* Offered Services Section */}
+                <Services onScrollToSection={handleScrollToSection} />
+                
+                {/* Project Showcases Section */}
+                <Showcase 
+                  onScrollToSection={handleScrollToSection} 
+                  onSelectProject={setSelectedProject}
+                />
+                
+                {/* Why Choose Us Pillars Section */}
+                <WhyChooseUs />
+                
+                {/* Testimonials Review Card Matrix */}
+                <Testimonials />
+                
+                {/* Clean Estimating & Consultation Form */}
+                <ConsultationForm onScrollToSection={handleScrollToSection} />
+              </main>
+            )}
+  
+            {currentView === 'about' && (
+              <About onScrollToSection={handleScrollToSection} />
+            )}
+  
+            {currentView === 'services' && (
+              <ServicesPage onScrollToSection={handleScrollToSection} />
+            )}
+  
+            {currentView === 'portfolio' && (
+              <PortfolioPage onScrollToSection={handleScrollToSection} />
+            )}
+  
+            {currentView === 'get-started' && (
+              <GetStartedPage onScrollToSection={handleScrollToSection} />
+            )}
+  
+            {currentView === 'privacy-policy' && (
+              <PrivacyPolicy onScrollToSection={handleScrollToSection} />
+            )}
+  
+            {currentView === 'terms-of-use' && (
+              <TermsOfUse onScrollToSection={handleScrollToSection} />
+            )}
+  
+            {currentView === 'safety-compliance' && (
+              <SafetyCompliance onScrollToSection={handleScrollToSection} />
+            )}
+  
+            {currentView === 'admin-portal' && (
+              <AdminPortal 
+                setView={handleSetView} 
                 onScrollToSection={handleScrollToSection} 
-                onSelectProject={setSelectedProject}
+                onViewLiveProject={(p) => {
+                  setSelectedProject(p);
+                  handleSetView('home');
+                }}
               />
-              
-              {/* Why Choose Us Pillars Section */}
-              <WhyChooseUs />
-              
-              {/* Testimonials Review Card Matrix */}
-              <Testimonials />
-              
-              {/* Clean Estimating & Consultation Form */}
-              <ConsultationForm onScrollToSection={handleScrollToSection} />
-            </main>
-          )}
-
-          {currentView === 'about' && (
-            <About onScrollToSection={handleScrollToSection} />
-          )}
-
-          {currentView === 'services' && (
-            <ServicesPage onScrollToSection={handleScrollToSection} />
-          )}
-
-          {currentView === 'portfolio' && (
-            <PortfolioPage onScrollToSection={handleScrollToSection} />
-          )}
-
-          {currentView === 'get-started' && (
-            <GetStartedPage onScrollToSection={handleScrollToSection} />
-          )}
-
-          {currentView === 'privacy-policy' && (
-            <PrivacyPolicy onScrollToSection={handleScrollToSection} />
-          )}
-
-          {currentView === 'terms-of-use' && (
-            <TermsOfUse onScrollToSection={handleScrollToSection} />
-          )}
-
-          {currentView === 'safety-compliance' && (
-            <SafetyCompliance onScrollToSection={handleScrollToSection} />
-          )}
-
-          {currentView === 'admin-portal' && (
-            <AdminPortal 
-              setView={handleSetView} 
-              onScrollToSection={handleScrollToSection} 
-              onViewLiveProject={(p) => {
-                setSelectedProject(p);
-                handleSetView('home');
-              }}
-            />
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
+      </div>
       
       {/* Shared Structurally Verified Footer */}
       <Footer setView={handleSetView} onScrollToSection={handleScrollToSection} />

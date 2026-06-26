@@ -221,12 +221,15 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   useEffect(() => {
     if (!isAuthenticated) return;
     
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
+      if (isSupabaseConfigured) {
+        await supabaseSync.pullAll();
+      }
       refreshDataCollections();
-    }, 4000); // Poll and reload data in real-time every 4 seconds
+    }, 8000); // Poll and reload data in real-time every 8 seconds
     
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isSupabaseConfigured]);
 
   // Dialog Overlay and alert banner state
   const [dialog, setDialog] = useState<{

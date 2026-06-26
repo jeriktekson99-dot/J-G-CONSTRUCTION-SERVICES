@@ -236,147 +236,182 @@ export const supabaseSync = {
     let missingTables: string[] = [];
     let firstGeneralError: string | null = null;
 
-    console.log('Syncing data with Supabase...');
+    console.log('Syncing data with Supabase in parallel...');
 
-    // 1. Sync Projects
+    // Fetch all tables in parallel to optimize load speeds
+    let dbProjects: any[] | null = null;
+    let dbTestimonials: any[] | null = null;
+    let dbLeads: any[] | null = null;
+    let dbServices: any[] | null = null;
+    let dbHistory: any[] | null = null;
+
     try {
-      const { data: dbProjects, error: pErr } = await supabase.from('projects').select('*');
-      if (pErr) {
-        if (pErr.message?.includes('Invalid path') || pErr.code === 'PGRST116') {
+      const [resP, resT, resL, resS, resH] = await Promise.all([
+        supabase.from('projects').select('*'),
+        supabase.from('testimonials').select('*'),
+        supabase.from('leads').select('*'),
+        supabase.from('services').select('*'),
+        supabase.from('historical_records').select('*')
+      ]);
+
+      if (resP.error) {
+        if (resP.error.message?.includes('Invalid path') || resP.error.code === 'PGRST116' || resP.error.code === '42P01') {
           missingTables.push('projects');
         } else {
-          firstGeneralError = firstGeneralError || pErr.message;
+          firstGeneralError = firstGeneralError || resP.error.message;
         }
-        console.warn('Could not sync projects table:', pErr.message);
-      } else if (dbProjects) {
-        if (dbProjects.length > 0) {
-          localStorage.setItem('jg_projects', JSON.stringify(normalizeToCamelCase(dbProjects)));
-        } else {
-          // Supabase empty - seed from localStorage
-          const localRaw = localStorage.getItem('jg_projects');
-          if (localRaw) {
-            const localProjects = JSON.parse(localRaw);
-            for (const item of localProjects) {
-              await safeUpsert('projects', item);
-            }
-          }
-        }
+        console.warn('Could not sync projects table:', resP.error.message);
+      } else {
+        dbProjects = resP.data;
       }
-    } catch (err: any) {
-      console.warn('Projects sync failed:', err);
-      hasError = true;
-    }
 
-    // 2. Sync Testimonials
-    try {
-      const { data: dbTestimonials, error: tErr } = await supabase.from('testimonials').select('*');
-      if (tErr) {
-        if (tErr.message?.includes('Invalid path') || tErr.code === 'PGRST116') {
+      if (resT.error) {
+        if (resT.error.message?.includes('Invalid path') || resT.error.code === 'PGRST116' || resT.error.code === '42P01') {
           missingTables.push('testimonials');
         } else {
-          firstGeneralError = firstGeneralError || tErr.message;
+          firstGeneralError = firstGeneralError || resT.error.message;
         }
-        console.warn('Could not sync testimonials table:', tErr.message);
-      } else if (dbTestimonials) {
-        if (dbTestimonials.length > 0) {
-          localStorage.setItem('jg_testimonials', JSON.stringify(normalizeToCamelCase(dbTestimonials)));
-        } else {
-          const localRaw = localStorage.getItem('jg_testimonials');
-          if (localRaw) {
-            const localTestimonials = JSON.parse(localRaw);
-            for (const item of localTestimonials) {
-              await safeUpsert('testimonials', item);
-            }
-          }
-        }
+        console.warn('Could not sync testimonials table:', resT.error.message);
+      } else {
+        dbTestimonials = resT.data;
       }
-    } catch (err: any) {
-      console.warn('Testimonials sync failed:', err);
-      hasError = true;
-    }
 
-    // 3. Sync Leads
-    try {
-      const { data: dbLeads, error: lErr } = await supabase.from('leads').select('*');
-      if (lErr) {
-        if (lErr.message?.includes('Invalid path') || lErr.code === 'PGRST116') {
+      if (resL.error) {
+        if (resL.error.message?.includes('Invalid path') || resL.error.code === 'PGRST116' || resL.error.code === '42P01') {
           missingTables.push('leads');
         } else {
-          firstGeneralError = firstGeneralError || lErr.message;
+          firstGeneralError = firstGeneralError || resL.error.message;
         }
-        console.warn('Could not sync leads table:', lErr.message);
-      } else if (dbLeads) {
-        if (dbLeads.length > 0) {
-          localStorage.setItem('jg_leads', JSON.stringify(normalizeToCamelCase(dbLeads)));
-        } else {
-          const localRaw = localStorage.getItem('jg_leads');
-          if (localRaw) {
-            const localLeads = JSON.parse(localRaw);
-            for (const item of localLeads) {
-              await safeUpsert('leads', item);
-            }
-          }
-        }
+        console.warn('Could not sync leads table:', resL.error.message);
+      } else {
+        dbLeads = resL.data;
       }
-    } catch (err: any) {
-      console.warn('Leads sync failed:', err);
-      hasError = true;
-    }
 
-    // 4. Sync Services
-    try {
-      const { data: dbServices, error: sErr } = await supabase.from('services').select('*');
-      if (sErr) {
-        if (sErr.message?.includes('Invalid path') || sErr.code === 'PGRST116') {
+      if (resS.error) {
+        if (resS.error.message?.includes('Invalid path') || resS.error.code === 'PGRST116' || resS.error.code === '42P01') {
           missingTables.push('services');
         } else {
-          firstGeneralError = firstGeneralError || sErr.message;
+          firstGeneralError = firstGeneralError || resS.error.message;
         }
-        console.warn('Could not sync services table:', sErr.message);
-      } else if (dbServices) {
-        if (dbServices.length > 0) {
-          localStorage.setItem('jg_services', JSON.stringify(normalizeToCamelCase(dbServices)));
+        console.warn('Could not sync services table:', resS.error.message);
+      } else {
+        dbServices = resS.data;
+      }
+
+      if (resH.error) {
+        if (resH.error.message?.includes('Invalid path') || resH.error.code === 'PGRST116' || resH.error.code === '42P01') {
+          missingTables.push('historical_records');
         } else {
-          const localRaw = localStorage.getItem('jg_services');
-          if (localRaw) {
-            const localServices = JSON.parse(localRaw);
-            for (const item of localServices) {
-              await safeUpsert('services', item);
-            }
-          }
+          firstGeneralError = firstGeneralError || resH.error.message;
         }
+        console.warn('Could not sync historical_records table:', resH.error.message);
+      } else {
+        dbHistory = resH.data;
       }
     } catch (err: any) {
-      console.warn('Services sync failed:', err);
+      console.warn('Error during parallel select queries:', err);
       hasError = true;
     }
 
-    // 5. Sync Historical Records
-    try {
-      const { data: dbHistory, error: hErr } = await supabase.from('historical_records').select('*');
-      if (hErr) {
-        if (hErr.message?.includes('Invalid path') || hErr.code === 'PGRST116') {
-          missingTables.push('historical_records');
-        } else {
-          firstGeneralError = firstGeneralError || hErr.message;
-        }
-        console.warn('Could not sync historical_records table:', hErr.message);
-      } else if (dbHistory) {
-        if (dbHistory.length > 0) {
-          localStorage.setItem('jg_historical_records', JSON.stringify(normalizeToCamelCase(dbHistory)));
-        } else {
-          const localRaw = localStorage.getItem('jg_historical_records');
-          if (localRaw) {
-            const localHistory = JSON.parse(localRaw);
-            for (const item of localHistory) {
-              await safeUpsert('historical_records', item);
-            }
+    // Determine if Supabase has EVER been seeded or has any user content.
+    // If all table queries returned zero records, it is a brand-new database instance and we can seed it with local/default data.
+    // If there is AT LEAST one record on any table, it means the database is live and used. In that case, we MUST NOT
+    // automatically re-seed empty tables, because empty tables indicate the owner intentionally cleared them or has zero records.
+    const totalRemoteRecords = 
+      (dbProjects?.length || 0) + 
+      (dbTestimonials?.length || 0) + 
+      (dbLeads?.length || 0) + 
+      (dbServices?.length || 0) + 
+      (dbHistory?.length || 0);
+
+    const isSupabaseCompletelyEmpty = totalRemoteRecords === 0;
+    console.log(`Supabase verification: total remote records found = ${totalRemoteRecords}. Is database completely empty? ${isSupabaseCompletelyEmpty}`);
+
+    // 1. Sync or Seed Projects
+    if (dbProjects !== null) {
+      if (dbProjects.length > 0) {
+        localStorage.setItem('jg_projects', JSON.stringify(normalizeToCamelCase(dbProjects)));
+      } else if (isSupabaseCompletelyEmpty) {
+        // Seed new database
+        const localRaw = localStorage.getItem('jg_projects');
+        if (localRaw) {
+          const localProjects = JSON.parse(localRaw);
+          for (const item of localProjects) {
+            await safeUpsert('projects', item);
           }
         }
+      } else {
+        // Remote table has 0 projects, but DB is active -> update localStorage to be empty as well (meaning deleted/empty state)
+        localStorage.setItem('jg_projects', JSON.stringify([]));
       }
-    } catch (err: any) {
-      console.warn('Historical records sync failed:', err);
-      hasError = true;
+    }
+
+    // 2. Sync or Seed Testimonials
+    if (dbTestimonials !== null) {
+      if (dbTestimonials.length > 0) {
+        localStorage.setItem('jg_testimonials', JSON.stringify(normalizeToCamelCase(dbTestimonials)));
+      } else if (isSupabaseCompletelyEmpty) {
+        const localRaw = localStorage.getItem('jg_testimonials');
+        if (localRaw) {
+          const localTestimonials = JSON.parse(localRaw);
+          for (const item of localTestimonials) {
+            await safeUpsert('testimonials', item);
+          }
+        }
+      } else {
+        localStorage.setItem('jg_testimonials', JSON.stringify([]));
+      }
+    }
+
+    // 3. Sync or Seed Leads
+    if (dbLeads !== null) {
+      if (dbLeads.length > 0) {
+        localStorage.setItem('jg_leads', JSON.stringify(normalizeToCamelCase(dbLeads)));
+      } else if (isSupabaseCompletelyEmpty) {
+        const localRaw = localStorage.getItem('jg_leads');
+        if (localRaw) {
+          const localLeads = JSON.parse(localRaw);
+          for (const item of localLeads) {
+            await safeUpsert('leads', item);
+          }
+        }
+      } else {
+        localStorage.setItem('jg_leads', JSON.stringify([]));
+      }
+    }
+
+    // 4. Sync or Seed Services
+    if (dbServices !== null) {
+      if (dbServices.length > 0) {
+        localStorage.setItem('jg_services', JSON.stringify(normalizeToCamelCase(dbServices)));
+      } else if (isSupabaseCompletelyEmpty) {
+        const localRaw = localStorage.getItem('jg_services');
+        if (localRaw) {
+          const localServices = JSON.parse(localRaw);
+          for (const item of localServices) {
+            await safeUpsert('services', item);
+          }
+        }
+      } else {
+        localStorage.setItem('jg_services', JSON.stringify([]));
+      }
+    }
+
+    // 5. Sync or Seed Historical Records
+    if (dbHistory !== null) {
+      if (dbHistory.length > 0) {
+        localStorage.setItem('jg_historical_records', JSON.stringify(normalizeToCamelCase(dbHistory)));
+      } else if (isSupabaseCompletelyEmpty) {
+        const localRaw = localStorage.getItem('jg_historical_records');
+        if (localRaw) {
+          const localHistory = JSON.parse(localRaw);
+          for (const item of localHistory) {
+            await safeUpsert('historical_records', item);
+          }
+        }
+      } else {
+        localStorage.setItem('jg_historical_records', JSON.stringify([]));
+      }
     }
 
     // Compute status
