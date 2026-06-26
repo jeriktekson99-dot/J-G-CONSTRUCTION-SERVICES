@@ -91,6 +91,21 @@ let syncStatus: SupabaseSyncStatus = {
   missingTables: []
 };
 
+// Tracks active mutations to prevent background pullAll races
+let activeMutationsCount = 0;
+
+async function runMutation<T>(op: () => Promise<T>): Promise<T> {
+  activeMutationsCount++;
+  try {
+    return await op();
+  } finally {
+    // Settle delay of 1200ms to allow Supabase index to update
+    setTimeout(() => {
+      activeMutationsCount = Math.max(0, activeMutationsCount - 1);
+    }, 1200);
+  }
+}
+
 // Listeners/callbacks when sync status updates
 const statusListeners = new Set<(status: SupabaseSyncStatus) => void>();
 
@@ -223,6 +238,11 @@ export const supabaseSync = {
   async pullAll(): Promise<boolean> {
     if (!isSupabaseConfigured || !supabase) {
       console.log('Supabase is not configured yet. Using localStorage.');
+      return false;
+    }
+
+    if (activeMutationsCount > 0) {
+      console.log('Skipping pullAll because a database mutation (insert/update/delete) is currently in progress...');
       return false;
     }
 
@@ -490,76 +510,92 @@ export const supabaseSync = {
 
   async pushProject(project: Project): Promise<void> {
     if (syncStatus.missingTables.includes('projects')) return;
-    try {
-      await safeUpsert('projects', project);
-    } catch (err: any) {
-      console.warn('Error pushing project to Supabase:', err?.message || err);
-    }
+    return runMutation(async () => {
+      try {
+        await safeUpsert('projects', project);
+      } catch (err: any) {
+        console.warn('Error pushing project to Supabase:', err?.message || err);
+      }
+    });
   },
 
   async deleteProject(id: string): Promise<void> {
     if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes('projects')) return;
-    try {
-      const { error } = await supabase.from('projects').delete().eq('id', id);
-      if (error) throw error;
-    } catch (err: any) {
-      console.warn('Error deleting project from Supabase:', err?.message || err);
-    }
+    return runMutation(async () => {
+      try {
+        const { error } = await supabase.from('projects').delete().eq('id', id);
+        if (error) throw error;
+      } catch (err: any) {
+        console.warn('Error deleting project from Supabase:', err?.message || err);
+      }
+    });
   },
 
   async pushTestimonial(testimonial: TestimonialItem & { isDeleted?: boolean }): Promise<void> {
     if (syncStatus.missingTables.includes('testimonials')) return;
-    try {
-      await safeUpsert('testimonials', testimonial);
-    } catch (err: any) {
-      console.warn('Error pushing testimonial to Supabase:', err?.message || err);
-    }
+    return runMutation(async () => {
+      try {
+        await safeUpsert('testimonials', testimonial);
+      } catch (err: any) {
+        console.warn('Error pushing testimonial to Supabase:', err?.message || err);
+      }
+    });
   },
 
   async deleteTestimonial(id: string): Promise<void> {
     if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes('testimonials')) return;
-    try {
-      const { error } = await supabase.from('testimonials').delete().eq('id', id);
-      if (error) throw error;
-    } catch (err: any) {
-      console.warn('Error deleting testimonial from Supabase:', err?.message || err);
-    }
+    return runMutation(async () => {
+      try {
+        const { error } = await supabase.from('testimonials').delete().eq('id', id);
+        if (error) throw error;
+      } catch (err: any) {
+        console.warn('Error deleting testimonial from Supabase:', err?.message || err);
+      }
+    });
   },
 
   async pushLead(lead: Lead): Promise<void> {
     if (syncStatus.missingTables.includes('leads')) return;
-    try {
-      await safeUpsert('leads', lead);
-    } catch (err: any) {
-      console.warn('Error pushing lead to Supabase:', err?.message || err);
-    }
+    return runMutation(async () => {
+      try {
+        await safeUpsert('leads', lead);
+      } catch (err: any) {
+        console.warn('Error pushing lead to Supabase:', err?.message || err);
+      }
+    });
   },
 
   async deleteLead(id: string): Promise<void> {
     if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes('leads')) return;
-    try {
-      const { error } = await supabase.from('leads').delete().eq('id', id);
-      if (error) throw error;
-    } catch (err: any) {
-      console.warn('Error deleting lead from Supabase:', err?.message || err);
-    }
+    return runMutation(async () => {
+      try {
+        const { error } = await supabase.from('leads').delete().eq('id', id);
+        if (error) throw error;
+      } catch (err: any) {
+        console.warn('Error deleting lead from Supabase:', err?.message || err);
+      }
+    });
   },
 
   async pushService(service: ServiceItem): Promise<void> {
     if (syncStatus.missingTables.includes('services')) return;
-    try {
-      await safeUpsert('services', service);
-    } catch (err: any) {
-      console.warn('Error pushing service to Supabase:', err?.message || err);
-    }
+    return runMutation(async () => {
+      try {
+        await safeUpsert('services', service);
+      } catch (err: any) {
+        console.warn('Error pushing service to Supabase:', err?.message || err);
+      }
+    });
   },
 
   async pushHistoricalRecord(record: HistoricalRecord): Promise<void> {
     if (syncStatus.missingTables.includes('historical_records')) return;
-    try {
-      await safeUpsert('historical_records', record);
-    } catch (err: any) {
-      console.warn('Error pushing historical record to Supabase:', err?.message || err);
-    }
+    return runMutation(async () => {
+      try {
+        await safeUpsert('historical_records', record);
+      } catch (err: any) {
+        console.warn('Error pushing historical record to Supabase:', err?.message || err);
+      }
+    });
   }
 };

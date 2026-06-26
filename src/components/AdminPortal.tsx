@@ -647,19 +647,20 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   };
 
   // BULK TRASH ACTIONS
-  const handleBulkRestoreTrash = () => {
-    selectedTrashKeys.forEach(key => {
+  const handleBulkRestoreTrash = async () => {
+    const promises = selectedTrashKeys.map(async (key) => {
       const parts = key.split('-');
       const type = parts[1];
       const id = parts.slice(2).join('-');
       if (type === 'lead') {
-        dataStore.restoreLead(id);
+        await dataStore.restoreLead(id);
       } else if (type === 'project') {
-        dataStore.restoreProject(id);
+        await dataStore.restoreProject(id);
       } else if (type === 'testimonial') {
-        dataStore.restoreTestimonial(id);
+        await dataStore.restoreTestimonial(id);
       }
     });
+    await Promise.all(promises);
     refreshDataCollections();
     setSelectedTrashKeys([]);
     addLogEntry('TRASH_BULK_RSTR', `Bulk restored ${selectedTrashKeys.length} records back to system pipelines.`);
@@ -670,19 +671,20 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     triggerConfirm(
       "CONFIRM PERMANENT BULK PURGE",
       `SECURITY PROTOCOL: Are you absolutely certain you want to permanently delete these ${selectedTrashKeys.length} records from history? This action is mathematically irreversible.`,
-      () => {
-        selectedTrashKeys.forEach(key => {
+      async () => {
+        const promises = selectedTrashKeys.map(async (key) => {
           const parts = key.split('-');
           const type = parts[1];
           const id = parts.slice(2).join('-');
           if (type === 'lead') {
-            dataStore.hardDeleteLead(id);
+            await dataStore.hardDeleteLead(id);
           } else if (type === 'project') {
-            dataStore.hardDeleteProject(id);
+            await dataStore.hardDeleteProject(id);
           } else if (type === 'testimonial') {
-            dataStore.hardDeleteTestimonial(id);
+            await dataStore.hardDeleteTestimonial(id);
           }
         });
+        await Promise.all(promises);
         refreshDataCollections();
         setSelectedTrashKeys([]);
         addLogEntry('TRASH_BULK_PURG', `Bulk permanently purged ${selectedTrashKeys.length} items.`);
@@ -699,14 +701,14 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     addLogEntry('LEAD_STATE', `Lead (Ref: ${lead?.fullName}) updated to status: ${status.toUpperCase()}`);
   };
 
-  const handleSoftDeleteLead = (id: string) => {
-    dataStore.deleteLeadSoft(id);
+  const handleSoftDeleteLead = async (id: string) => {
+    await dataStore.deleteLeadSoft(id);
     refreshDataCollections();
     addLogEntry('LEAD_S_DEL', `Lead ${id} flags marked as DELETED (isolated in soft-delete vault).`);
   };
 
-  const handleRestoreLead = (id: string) => {
-    dataStore.restoreLead(id);
+  const handleRestoreLead = async (id: string) => {
+    await dataStore.restoreLead(id);
     refreshDataCollections();
     addLogEntry('LEAD_REST', `Lead ${id} safely active state restored.`);
   };
@@ -716,8 +718,8 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     triggerConfirm(
       "CONFIRM PERMANENT PURGE",
       `Are you absolutely sure you want to permanently purge lead file of "${lead?.fullName}"? This action cannot be reversed.`,
-      () => {
-        dataStore.hardDeleteLead(id);
+      async () => {
+        await dataStore.hardDeleteLead(id);
         refreshDataCollections();
         addLogEntry('LEAD_H_DEL', `Lead reference ${id} permanently wiped from databases.`);
       }
@@ -819,15 +821,15 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     }
   };
 
-  const handleSoftDeleteProject = (id: string) => {
-    dataStore.deleteProjectSoft(id);
+  const handleSoftDeleteProject = async (id: string) => {
+    await dataStore.deleteProjectSoft(id);
     refreshDataCollections();
     const p = dataStore.getProjectById(id);
     addLogEntry('PROJ_S_DEL', `Project "${p?.title}" soft-deleted (retained in safety database folder).`);
   };
 
-  const handleRestoreProject = (id: string) => {
-    dataStore.restoreProject(id);
+  const handleRestoreProject = async (id: string) => {
+    await dataStore.restoreProject(id);
     refreshDataCollections();
     const p = dataStore.getProjectById(id);
     addLogEntry('PROJ_REST', `Project "${p?.title}" returned to active index listing.`);
@@ -838,8 +840,8 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     triggerConfirm(
       "CONFIRM PERMANENT PURGE",
       `This will destroy records for "${p?.title}". Permanent deletion is irreversible. Confirm?`,
-      () => {
-        dataStore.hardDeleteProject(id);
+      async () => {
+        await dataStore.hardDeleteProject(id);
         refreshDataCollections();
         addLogEntry('PROJ_H_DEL', `Database indexes and records of project ID ${id} wiped.`);
       }
@@ -878,14 +880,14 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     }
   };
 
-  const handleSoftDeleteTestimonial = (id: string) => {
-    dataStore.deleteTestimonialSoft(id);
+  const handleSoftDeleteTestimonial = async (id: string) => {
+    await dataStore.deleteTestimonialSoft(id);
     refreshDataCollections();
     addLogEntry('TEST_S_DEL', `Testimonial reference ${id} marked as soft-deleted.`);
   };
 
-  const handleRestoreTestimonial = (id: string) => {
-    dataStore.restoreTestimonial(id);
+  const handleRestoreTestimonial = async (id: string) => {
+    await dataStore.restoreTestimonial(id);
     refreshDataCollections();
     addLogEntry('TEST_REST', `Testimonial reference ${id} successfully restored.`);
   };
@@ -895,8 +897,8 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     triggerConfirm(
       "CONFIRM PERMANENT PURGE",
       `Are you absolutely sure you want to permanently remove of client review by ${t?.author}?`,
-      () => {
-        dataStore.hardDeleteTestimonial(id);
+      async () => {
+        await dataStore.hardDeleteTestimonial(id);
         refreshDataCollections();
         addLogEntry('TEST_H_DEL', `Review records corresponding to ${id} wiped entirely.`);
       }
@@ -3202,15 +3204,15 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
 
                                         {/* Restore button */}
                                         <button
-                                          onClick={() => {
+                                          onClick={async () => {
                                             if (item.type === 'lead') {
-                                              dataStore.restoreLead(item.id);
+                                              await dataStore.restoreLead(item.id);
                                               addLogEntry('LEAD_RSTR', `Restored inbound lead for ${(item as any).fullName}`);
                                             } else if (item.type === 'project') {
-                                              dataStore.restoreProject(item.id);
+                                              await dataStore.restoreProject(item.id);
                                               addLogEntry('PROJ_RSTR', `Restored portfolio project "${(item as any).title}"`);
                                             } else if (item.type === 'testimonial') {
-                                              dataStore.restoreTestimonial(item.id);
+                                              await dataStore.restoreTestimonial(item.id);
                                               addLogEntry('TEST_RSTR', `Restored client testimonial from ${(item as any).author}`);
                                             }
                                             refreshDataCollections();
@@ -3228,15 +3230,15 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                             triggerConfirm(
                                               "SECURITY PROTOCOL: PERMANENT DESTRUCT",
                                               "Are you absolutely certain you want to permanently purge this file? This will completely wipe all footprints from browser local memory.",
-                                              () => {
+                                              async () => {
                                                 if (item.type === 'lead') {
-                                                  dataStore.hardDeleteLead(item.id);
+                                                  await dataStore.hardDeleteLead(item.id);
                                                   addLogEntry('LEAD_PURG', `Permanently purged lead register ${(item as any).fullName}`);
                                                 } else if (item.type === 'project') {
-                                                  dataStore.hardDeleteProject(item.id);
+                                                  await dataStore.hardDeleteProject(item.id);
                                                   addLogEntry('PROJ_PURG', `Permanently purged project design record "${(item as any).title}"`);
                                                 } else if (item.type === 'testimonial') {
-                                                  dataStore.hardDeleteTestimonial(item.id);
+                                                  await dataStore.hardDeleteTestimonial(item.id);
                                                   addLogEntry('TEST_PURG', `Permanently purged testimonial ledger ${(item as any).author}`);
                                                 }
                                                 refreshDataCollections();

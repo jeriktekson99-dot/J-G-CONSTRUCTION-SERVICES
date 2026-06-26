@@ -449,33 +449,33 @@ export const dataStore = {
     supabaseSync.pushProject(updatedProject);
   },
 
-  deleteProjectSoft(id: string): void {
+  async deleteProjectSoft(id: string): Promise<void> {
     if (!isClient) return;
     const projects = this.getProjects(true);
     const index = projects.findIndex(p => p.id === id);
     if (index >= 0) {
       projects[index].isDeleted = true;
       localStorage.setItem('jg_projects', JSON.stringify(projects));
-      supabaseSync.pushProject(projects[index]);
+      await supabaseSync.pushProject(projects[index]);
     }
   },
 
-  restoreProject(id: string): void {
+  async restoreProject(id: string): Promise<void> {
     if (!isClient) return;
     const projects = this.getProjects(true);
     const index = projects.findIndex(p => p.id === id);
     if (index >= 0) {
       projects[index].isDeleted = false;
       localStorage.setItem('jg_projects', JSON.stringify(projects));
-      supabaseSync.pushProject(projects[index]);
+      await supabaseSync.pushProject(projects[index]);
     }
   },
 
-  hardDeleteProject(id: string): void {
+  async hardDeleteProject(id: string): Promise<void> {
     if (!isClient) return;
     const projects = this.getProjects(true).filter(p => p.id !== id);
     localStorage.setItem('jg_projects', JSON.stringify(projects));
-    supabaseSync.deleteProject(id);
+    await supabaseSync.deleteProject(id);
   },
 
   // TESTIMONIALS CRUD
@@ -503,33 +503,33 @@ export const dataStore = {
     supabaseSync.pushTestimonial(testimonial);
   },
 
-  deleteTestimonialSoft(id: string): void {
+  async deleteTestimonialSoft(id: string): Promise<void> {
     if (!isClient) return;
     const testimonials = this.getTestimonials(true);
     const index = testimonials.findIndex(t => t.id === id);
     if (index >= 0) {
       (testimonials[index] as any).isDeleted = true;
       localStorage.setItem('jg_testimonials', JSON.stringify(testimonials));
-      supabaseSync.pushTestimonial(testimonials[index]);
+      await supabaseSync.pushTestimonial(testimonials[index]);
     }
   },
 
-  restoreTestimonial(id: string): void {
+  async restoreTestimonial(id: string): Promise<void> {
     if (!isClient) return;
     const testimonials = this.getTestimonials(true);
     const index = testimonials.findIndex(t => t.id === id);
     if (index >= 0) {
       (testimonials[index] as any).isDeleted = false;
       localStorage.setItem('jg_testimonials', JSON.stringify(testimonials));
-      supabaseSync.pushTestimonial(testimonials[index]);
+      await supabaseSync.pushTestimonial(testimonials[index]);
     }
   },
 
-  hardDeleteTestimonial(id: string): void {
+  async hardDeleteTestimonial(id: string): Promise<void> {
     if (!isClient) return;
     const testimonials = this.getTestimonials(true).filter(t => t.id !== id);
     localStorage.setItem('jg_testimonials', JSON.stringify(testimonials));
-    supabaseSync.deleteTestimonial(id);
+    await supabaseSync.deleteTestimonial(id);
   },
 
   // LEADS (Inbound Data capture) CRUD
@@ -571,33 +571,33 @@ export const dataStore = {
     }
   },
 
-  deleteLeadSoft(id: string): void {
+  async deleteLeadSoft(id: string): Promise<void> {
     if (!isClient) return;
     const leads = this.getLeads(true);
     const index = leads.findIndex(l => l.id === id);
     if (index >= 0) {
       leads[index].isDeleted = true;
       localStorage.setItem('jg_leads', JSON.stringify(leads));
-      supabaseSync.pushLead(leads[index]);
+      await supabaseSync.pushLead(leads[index]);
     }
   },
 
-  restoreLead(id: string): void {
+  async restoreLead(id: string): Promise<void> {
     if (!isClient) return;
     const leads = this.getLeads(true);
     const index = leads.findIndex(l => l.id === id);
     if (index >= 0) {
       leads[index].isDeleted = false;
       localStorage.setItem('jg_leads', JSON.stringify(leads));
-      supabaseSync.pushLead(leads[index]);
+      await supabaseSync.pushLead(leads[index]);
     }
   },
 
-  hardDeleteLead(id: string): void {
+  async hardDeleteLead(id: string): Promise<void> {
     if (!isClient) return;
     const leads = this.getLeads(true).filter(l => l.id !== id);
     localStorage.setItem('jg_leads', JSON.stringify(leads));
-    supabaseSync.deleteLead(id);
+    await supabaseSync.deleteLead(id);
   },
 
   // SERVICES CRUD
