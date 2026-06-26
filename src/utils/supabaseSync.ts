@@ -1,5 +1,14 @@
 import { supabase, isSupabaseConfigured, supabaseUrl } from './supabaseClient';
-import { Project, Lead, ServiceItem } from './dataStore';
+import { 
+  Project, 
+  Lead, 
+  ServiceItem,
+  DEFAULT_PROJECTS,
+  DEFAULT_TESTIMONIALS,
+  DEFAULT_LEADS,
+  DEFAULT_SERVICES,
+  DEFAULT_HISTORICAL_RECORDS
+} from './dataStore';
 import { TestimonialItem, HistoricalRecord } from '../types';
 
 // KEY MAPPINGS FOR NORMALIZING DATABASE COLUMNS ON THE FLY
@@ -370,106 +379,66 @@ export const supabaseSync = {
       hasError = true;
     }
 
-    // Determine if Supabase has EVER been seeded or has any user content.
-    // If all table queries returned zero records, it is a brand-new database instance and we can seed it with local/default data.
-    // If there is AT LEAST one record on any table, it means the database is live and used. In that case, we MUST NOT
-    // automatically re-seed empty tables, because empty tables indicate the owner intentionally cleared them or has zero records.
-    const totalRemoteRecords = 
-      (dbProjects?.length || 0) + 
-      (dbTestimonials?.length || 0) + 
-      (dbLeads?.length || 0) + 
-      (dbServices?.length || 0) + 
-      (dbHistory?.length || 0);
-
-    const isSupabaseCompletelyEmpty = totalRemoteRecords === 0;
-    console.log(`Supabase verification: total remote records found = ${totalRemoteRecords}. Is database completely empty? ${isSupabaseCompletelyEmpty}`);
-
-    // 1. Sync or Seed Projects
-    if (dbProjects !== null) {
-      if (dbProjects.length > 0) {
-        localStorage.setItem('jg_projects', JSON.stringify(normalizeToCamelCase(dbProjects)));
-      } else if (isSupabaseCompletelyEmpty) {
-        // Seed new database
-        const localRaw = localStorage.getItem('jg_projects');
-        if (localRaw) {
-          const localProjects = JSON.parse(localRaw);
-          for (const item of localProjects) {
-            await safeUpsert('projects', item);
-          }
-        }
-      } else {
-        // Remote table has 0 projects, but DB is active -> update localStorage to be empty as well (meaning deleted/empty state)
-        localStorage.setItem('jg_projects', JSON.stringify([]));
+    // Run synchronization for all tables independently and robustly
+    const syncSingleTable = async (
+      tableName: string,
+      localStorageKey: string,
+      remoteData: any[] | null,
+      defaultData: any[]
+    ) => {
+      if (remoteData === null) {
+        console.log(`[Sync] Skipping ${tableName} because remote query returned null (error or offline).`);
+        return;
       }
-    }
 
-    // 2. Sync or Seed Testimonials
-    if (dbTestimonials !== null) {
-      if (dbTestimonials.length > 0) {
-        localStorage.setItem('jg_testimonials', JSON.stringify(normalizeToCamelCase(dbTestimonials)));
-      } else if (isSupabaseCompletelyEmpty) {
-        const localRaw = localStorage.getItem('jg_testimonials');
-        if (localRaw) {
-          const localTestimonials = JSON.parse(localRaw);
-          for (const item of localTestimonials) {
-            await safeUpsert('testimonials', item);
-          }
-        }
+      if (remoteData.length > 0) {
+        console.log(`[Sync] Pulling ${remoteData.length} active records for ${tableName} from Supabase.`);
+        localStorage.setItem(localStorageKey, JSON.stringify(normalizeToCamelCase(remoteData)));
       } else {
-        localStorage.setItem('jg_testimonials', JSON.stringify([]));
-      }
-    }
+        // Remote table has 0 records. Check if localStorage has records.
+        const localRaw = localStorage.getItem(localStorageKey);
+        let localData: any[] = [];
+        try {
+          localData = localRaw ? JSON.parse(localRaw) : [];
+        } catch (e) {
+          localData = [];
+        }
 
-    // 3. Sync or Seed Leads
-    if (dbLeads !== null) {
-      if (dbLeads.length > 0) {
-        localStorage.setItem('jg_leads', JSON.stringify(normalizeToCamelCase(dbLeads)));
-      } else if (isSupabaseCompletelyEmpty) {
-        const localRaw = localStorage.getItem('jg_leads');
-        if (localRaw) {
-          const localLeads = JSON.parse(localRaw);
-          for (const item of localLeads) {
-            await safeUpsert('leads', item);
+        if (localData.length === 0) {
+          // Both remote and local are completely empty -> load default records and attempt to upload them.
+          console.log(`[Sync] Remote and local for ${tableName} are empty. Bootstrapping with template defaults.`);
+          localStorage.setItem(localStorageKey, JSON.stringify(defaultData));
+          if (isSupabaseConfigured && supabase) {
+            for (const item of defaultData) {
+              await safeUpsert(tableName, item);
+            }
           }
+        } else {
+          // Local storage has records but remote has 0 records.
+          // This happens when database is newly provisioned, OR if user is logged out (and RLS blocked the read).
+          console.log(`[Sync] Remote has 0 records for ${tableName}, but local has ${localData.length} records. Uploading local state to seed remote...`);
+          if (isSupabaseConfigured && supabase) {
+            try {
+              for (const item of localData) {
+                await safeUpsert(tableName, item);
+              }
+              console.log(`[Sync] Successfully seeded remote ${tableName} with local data.`);
+            } catch (err: any) {
+              console.warn(`[Sync] Seeding remote table ${tableName} failed (this is expected if unauthenticated):`, err?.message || err);
+            }
+          }
+          // IMPORTANT: DO NOT clear local storage! We preserve local data so logout or RLS doesn't wipe the app's state!
         }
-      } else {
-        localStorage.setItem('jg_leads', JSON.stringify([]));
       }
-    }
+    };
 
-    // 4. Sync or Seed Services
-    if (dbServices !== null) {
-      if (dbServices.length > 0) {
-        localStorage.setItem('jg_services', JSON.stringify(normalizeToCamelCase(dbServices)));
-      } else if (isSupabaseCompletelyEmpty) {
-        const localRaw = localStorage.getItem('jg_services');
-        if (localRaw) {
-          const localServices = JSON.parse(localRaw);
-          for (const item of localServices) {
-            await safeUpsert('services', item);
-          }
-        }
-      } else {
-        localStorage.setItem('jg_services', JSON.stringify([]));
-      }
-    }
-
-    // 5. Sync or Seed Historical Records
-    if (dbHistory !== null) {
-      if (dbHistory.length > 0) {
-        localStorage.setItem('jg_historical_records', JSON.stringify(normalizeToCamelCase(dbHistory)));
-      } else if (isSupabaseCompletelyEmpty) {
-        const localRaw = localStorage.getItem('jg_historical_records');
-        if (localRaw) {
-          const localHistory = JSON.parse(localRaw);
-          for (const item of localHistory) {
-            await safeUpsert('historical_records', item);
-          }
-        }
-      } else {
-        localStorage.setItem('jg_historical_records', JSON.stringify([]));
-      }
-    }
+    await Promise.all([
+      syncSingleTable('projects', 'jg_projects', dbProjects, DEFAULT_PROJECTS),
+      syncSingleTable('testimonials', 'jg_testimonials', dbTestimonials, DEFAULT_TESTIMONIALS),
+      syncSingleTable('leads', 'jg_leads', dbLeads, DEFAULT_LEADS),
+      syncSingleTable('services', 'jg_services', dbServices, DEFAULT_SERVICES),
+      syncSingleTable('historical_records', 'jg_historical_records', dbHistory, DEFAULT_HISTORICAL_RECORDS)
+    ]);
 
     // Compute status
     const isMissingTables = missingTables.length > 0;

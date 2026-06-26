@@ -43,7 +43,7 @@ export interface ServiceItem {
 }
 
 // Default Projects
-const DEFAULT_PROJECTS: Project[] = [
+export const DEFAULT_PROJECTS: Project[] = [
   {
     id: "proj-1",
     title: "Steel Truss Logistics Warehouse",
@@ -151,7 +151,7 @@ const DEFAULT_PROJECTS: Project[] = [
 ];
 
 // Default Testimonials
-const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
+export const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
   {
     id: "cl-1",
     quote: "J/G Construction Services brought unmatched clarity to our commercial development project. Their structural solutions saved us weeks on the timeline.",
@@ -179,7 +179,7 @@ const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
 ];
 
 // Default Leads
-const DEFAULT_LEADS: Lead[] = [
+export const DEFAULT_LEADS: Lead[] = [
   {
     id: "lead-1",
     fullName: "Arthur Pendragon",
@@ -201,7 +201,7 @@ const DEFAULT_LEADS: Lead[] = [
 ];
 
 // Default Services Detail
-const DEFAULT_SERVICES: ServiceItem[] = [
+export const DEFAULT_SERVICES: ServiceItem[] = [
   {
     id: "ser-1",
     title: "Architectural Planning & Drafting",
@@ -324,7 +324,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
   }
 ];
 
-const DEFAULT_HISTORICAL_RECORDS: HistoricalRecord[] = [
+export const DEFAULT_HISTORICAL_RECORDS: HistoricalRecord[] = [
   {
     id: "2026-05",
     label: "May 2026",
