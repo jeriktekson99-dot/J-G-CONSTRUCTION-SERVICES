@@ -384,28 +384,42 @@ export const dataStore = {
     }
     let projects: Project[] = JSON.parse(raw);
     
-    // Auto-migrate stale path prefixes from "/src/assets/images/" to "/assets/images/"
+    // Auto-migrate stale path prefixes to "/assets/images/"
     let migrated = false;
+    const cleanPath = (pStr: string | undefined): string | undefined => {
+      if (!pStr) return pStr;
+      let cleaned = pStr;
+      if (cleaned.startsWith('/src/assets/images/')) {
+        cleaned = cleaned.replace('/src/assets/images/', '/assets/images/');
+      } else if (cleaned.startsWith('src/assets/images/')) {
+        cleaned = '/' + cleaned.replace('src/assets/images/', 'assets/images/');
+      } else if (cleaned.startsWith('/public/assets/images/')) {
+        cleaned = cleaned.replace('/public/assets/images/', '/assets/images/');
+      } else if (cleaned.startsWith('public/assets/images/')) {
+        cleaned = '/' + cleaned.replace('public/assets/images/', 'assets/images/');
+      } else if (cleaned.startsWith('assets/images/')) {
+        cleaned = '/' + cleaned;
+      }
+      return cleaned;
+    };
+
     projects = projects.map(p => {
       let pMigrated = false;
-      let img = p.image;
-      if (img && img.startsWith('/src/assets/images/')) {
-        img = img.replace('/src/assets/images/', '/assets/images/');
+      const img = cleanPath(p.image);
+      if (img !== p.image) {
         pMigrated = true;
       }
-      let imgs = p.images;
-      if (imgs && imgs.length > 0) {
-        imgs = imgs.map(item => {
-          if (item && item.startsWith('/src/assets/images/')) {
-            pMigrated = true;
-            return item.replace('/src/assets/images/', '/assets/images/');
-          }
-          return item;
-        });
+      let imgs = p.images || [];
+      if (imgs.length > 0) {
+        const cleanedImgs = imgs.map(item => cleanPath(item) || '');
+        if (JSON.stringify(cleanedImgs) !== JSON.stringify(imgs)) {
+          imgs = cleanedImgs;
+          pMigrated = true;
+        }
       }
       if (pMigrated) {
         migrated = true;
-        return { ...p, image: img, images: imgs };
+        return { ...p, image: img || '', images: imgs };
       }
       return p;
     });

@@ -318,7 +318,7 @@ export default function ProjectShowcasePage({ project, onBack, onScrollToSection
                   GENERAL CONTRACTOR
                 </span>
                 <h4 className="font-display font-extrabold text-[#111111] text-base uppercase mt-0.5">
-                  J/G SITE SERVICES TEAM
+                  J/G CONSTRUCTION TEAM
                 </h4>
                 <p className="font-sans text-xs text-gray-500 mt-1">
                   Safe Operations Protocol Verified

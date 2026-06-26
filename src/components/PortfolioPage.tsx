@@ -178,7 +178,7 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
                         src={p.image} 
                         alt={p.title} 
                         referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-102"
+                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-102"
                       />
                     </div>
 
@@ -348,7 +348,7 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
                   src={selectedProject.image} 
                   alt={selectedProject.title} 
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover grayscale" 
+                  className="w-full h-full object-cover" 
                 />
               </div>
 

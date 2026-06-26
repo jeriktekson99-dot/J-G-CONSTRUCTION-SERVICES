@@ -78,7 +78,7 @@ export default function Showcase({ onScrollToSection, onSelectProject }: Showcas
                   src={p.image} 
                   alt={p.title} 
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-102"
+                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-102"
                 />
               </div>
 
