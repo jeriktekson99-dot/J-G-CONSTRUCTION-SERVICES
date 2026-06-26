@@ -23,7 +23,10 @@ import {
   Compass,
   Droplets,
   X,
-  ZoomIn
+  ZoomIn,
+  Activity,
+  MapPin,
+  ArrowRight
 } from 'lucide-react';
 
 interface AboutProps {
@@ -34,60 +37,60 @@ export default function About({ onScrollToSection }: AboutProps) {
   // Section 2 Sectors of Operation Grid Items (ARCHITECTURAL, CIVIL, STRUCTURAL, ELECTRICAL & PLUMBING)
   const sectors = [
     {
-      id: "sec-1",
-      title: "Architectural Space Planning",
-      icon: Paintbrush,
-      accent: "border-l-4 border-l-industrial-red",
-      scope: "Bespoke spatial design, high-concept interior layouts, functional CAD drafting, and aesthetic harmony."
-    },
-    {
-      id: "sec-2",
-      title: "Interior Fit-Out & Finishing",
-      icon: Layers,
-      accent: "border-l-4 border-l-engineering-blue",
-      scope: "Premium partition structures, acoustical ceilings, elegant surface finishing, and tailored commercial/office trims."
-    },
-    {
-      id: "sec-3",
-      title: "General Building Renovation",
-      icon: HomeIcon,
-      accent: "border-l-4 border-l-industrial-red",
-      scope: "Transformative building modernization, adaptive reuse solutions, structural restorations, and custom space extensions."
-    },
-    {
-      id: "sec-4",
-      title: "Civil Works & Site Grading",
+      id: "ser-1",
+      title: "Architectural Planning & Drafting",
       icon: Compass,
-      accent: "border-l-4 border-l-engineering-blue",
-      scope: "High-grade earthworks, road networks, storm-drainage configurations, and robust retaining slope structures."
+      accent: "border-t-4 border-t-industrial-red",
+      scope: "Bespoke schematic spatial design, custom layouts, 3D renderings, and precise CAD elevations."
     },
     {
-      id: "sec-5",
-      title: "Structural Framework & Design",
+      id: "ser-2",
+      title: "Interior Fit-Out & Finishing",
+      icon: Paintbrush,
+      accent: "border-t-4 border-t-engineering-blue",
+      scope: "Drywall partition structures, acoustical false ceilings, raised floor tiling, and custom carpentry."
+    },
+    {
+      id: "ser-3",
+      title: "General Building Renovation",
+      icon: Activity,
+      accent: "border-t-4 border-t-industrial-red",
+      scope: "Corporate office modernizations, load-bearing transfers, facade cladding, and structural repairs."
+    },
+    {
+      id: "ser-4",
+      title: "Civil Works & Infrastructure",
+      icon: MapPin,
+      accent: "border-t-4 border-t-engineering-blue",
+      scope: "Heavy site layout grading, volumetric balancing, storm drainage channels, and concrete roads."
+    },
+    {
+      id: "ser-5",
+      title: "Structural Engineering & Design",
       icon: Building2,
-      accent: "border-l-4 border-l-industrial-red",
-      scope: "Finite element calculations, safety-critical load path tracing, wind shear resistance, and seismic compliance checks."
+      accent: "border-t-4 border-t-industrial-red",
+      scope: "Finite element load modeling, dynamic seismic design, roof truss shop details, and wind computations."
     },
     {
-      id: "sec-6",
-      title: "Dynamic Foundation Engineering",
-      icon: Warehouse,
-      accent: "border-l-4 border-l-engineering-blue",
-      scope: "High-strength monolithic concrete pours, soil compaction verification, deep-piling structures, and footing integrity."
+      id: "ser-6",
+      title: "Foundations & Concrete Works",
+      icon: Layers,
+      accent: "border-t-4 border-t-engineering-blue",
+      scope: "Monolithic concrete mat footings, subgrade suitability profiling, pile caps, and curing audits."
     },
     {
-      id: "sec-7",
-      title: "Electrical Systems & Distribution",
+      id: "ser-7",
+      title: "Electrical Systems Engineering",
       icon: Zap,
-      accent: "border-l-4 border-l-industrial-red",
-      scope: "Power load flow modeling, electrical distribution boards, safe lighting configurations, and power feed routing."
+      accent: "border-t-4 border-t-industrial-red",
+      scope: "Balanced power panel calculations, fire-rated conduit runs, auxiliary systems, and riser schemes."
     },
     {
-      id: "sec-8",
+      id: "ser-8",
       title: "Plumbing & Sanitary Engineering",
       icon: Droplets,
-      accent: "border-l-4 border-l-engineering-blue",
-      scope: "Clean water supply lines, hygienic sewage networks, specialized drainage grids, and high-efficiency sanitary fixtures."
+      accent: "border-t-4 border-t-engineering-blue",
+      scope: "Thermal PPR domestic water loops, sanitary stack venting, grease interceptors, and storm drainage."
     }
   ];
 
@@ -332,21 +335,45 @@ export default function About({ onScrollToSection }: AboutProps) {
           </div>
 
           {/* 4x2 Responsive Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {sectors.map((sc) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+            {sectors.map((sc, idx) => {
               const IconComp = sc.icon;
               return (
                 <div 
                   key={sc.id}
-                  className={`bg-white border border-black p-6 hover:shadow-[4px_4px_0px_#111111] transition-all duration-300 text-left flex flex-col justify-between ${sc.accent}`}
+                  onClick={() => onScrollToSection?.(sc.id)}
+                  className={`bg-white border border-black p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-[6px_6px_0px_#111111] hover:-translate-y-1 group relative cursor-pointer ${sc.accent}`}
                 >
+                  {/* Structural Grid lines background overlay on hover to simulate engineering charts */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.02] pointer-events-none transition-opacity duration-300" style={{
+                    backgroundImage: 'radial-gradient(#111111 1px, transparent 1px), radial-gradient(#111111 1px, transparent 1px)',
+                    backgroundSize: '12px 12px',
+                    backgroundPosition: '0 0, 6px 6px'
+                  }} />
+
                   <div>
-                    <div className="p-2.5 bg-gray-50 border border-gray-200 inline-block text-black mb-4">
-                      <IconComp className="h-5 w-5" />
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="p-3 bg-gray-50 border border-gray-200 text-black">
+                        <IconComp className="h-6 w-6" />
+                      </div>
+                      <span className="font-mono text-[10px] text-gray-400 font-bold">
+                        0{idx + 1} // SYS_SVC
+                      </span>
                     </div>
-                    <h3 className="font-display font-extrabold text-[#111111] text-base leading-tight">
+
+                    <h3 className="font-display font-extrabold text-[#111111] text-lg tracking-tight mb-2 text-left group-hover:text-industrial-red transition-colors">
                       {sc.title}
                     </h3>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between font-mono text-[10px] text-black font-bold">
+                    <span className="text-gray-400 group-hover:text-engineering-blue transition-colors">
+                      STRUCTURAL_ASSURE_OK
+                    </span>
+                    <div className="flex items-center gap-1 group-hover:text-industrial-red transition-colors text-xs">
+                      <span>Details</span>
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                    </div>
                   </div>
                 </div>
               );
