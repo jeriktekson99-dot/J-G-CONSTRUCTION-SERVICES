@@ -98,13 +98,50 @@ function notifyStatusChange() {
   statusListeners.forEach(listener => listener({ ...syncStatus }));
 }
 
+const TABLE_COLUMNS: Record<string, string[]> = {
+  projects: [
+    'id', 'title', 'category', 'location', 'image', 'images', 
+    'scope', 'client', 'completedYear', 'complianceRatio', 
+    'description', 'status', 'isDeleted'
+  ],
+  testimonials: [
+    'id', 'quote', 'author', 'role', 'organization', 'stars', 'isDeleted'
+  ],
+  leads: [
+    'id', 'fullName', 'companyEmail', 'phone', 'projectScope', 
+    'timestamp', 'status', 'isDeleted', 'serviceCategory'
+  ],
+  services: [
+    'id', 'title', 'tagline', 'description', 'image', 'metric', 
+    'metricLabel', 'scopeItems', 'isDeleted'
+  ],
+  historical_records: [
+    'id', 'label', 'type', 'year', 'monthIndex', 'dataPoints', 'totalLeads'
+  ]
+};
+
+function sanitizePayload(tableName: string, data: any): any {
+  const allowed = TABLE_COLUMNS[tableName];
+  if (!allowed || !data || typeof data !== 'object') return data;
+  
+  const sanitized: any = {};
+  for (const key of allowed) {
+    if (data[key] !== undefined) {
+      sanitized[key] = data[key];
+    }
+  }
+  return sanitized;
+}
+
 // Helper to upsert with smart fallbacks for casing (corrected)
 async function safeUpsert(tableName: string, originalData: any): Promise<void> {
   if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes(tableName)) return;
 
+  const sanitizedData = sanitizePayload(tableName, originalData);
+
   try {
     // Attempt to save to Supabase using exact payload first
-    const { error: directError } = await supabase.from(tableName).upsert(originalData);
+    const { error: directError } = await supabase.from(tableName).upsert(sanitizedData);
     if (!directError) return;
 
     // Check if table does not exist
@@ -123,7 +160,7 @@ async function safeUpsert(tableName: string, originalData: any): Promise<void> {
     }
 
     // Otherwise, try with lowercase mapping
-    const lowercaseData = mapKeys(originalData, k => k.toLowerCase());
+    const lowercaseData = mapKeys(sanitizedData, k => k.toLowerCase());
     const { error: lowercaseError } = await supabase.from(tableName).upsert(lowercaseData);
     if (!lowercaseError) return;
 
@@ -142,7 +179,7 @@ async function safeUpsert(tableName: string, originalData: any): Promise<void> {
     }
 
     // Try with snake_case mapping
-    const snakeData = mapKeys(originalData, toSnakeCase);
+    const snakeData = mapKeys(sanitizedData, toSnakeCase);
     const { error: snakeError } = await supabase.from(tableName).upsert(snakeData);
     if (snakeError) {
       if (
