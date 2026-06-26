@@ -428,7 +428,15 @@ export const dataStore = {
       localStorage.setItem('jg_projects', JSON.stringify(projects));
     }
 
-    return includeDeleted ? projects : projects.filter(p => !p.isDeleted);
+    let filteredProjects = includeDeleted ? projects : projects.filter(p => !p.isDeleted);
+    
+    // Dynamically filter out default template projects if at least one custom project exists
+    const hasCustomProjects = filteredProjects.some(p => p.id && !p.id.match(/^proj-[1-8]$/));
+    if (hasCustomProjects) {
+      filteredProjects = filteredProjects.filter(p => !p.id.match(/^proj-[1-8]$/));
+    }
+
+    return filteredProjects;
   },
 
   getProjectById(id: string): Project | undefined {
@@ -487,7 +495,14 @@ export const dataStore = {
       return DEFAULT_TESTIMONIALS;
     }
     const testimonials: (TestimonialItem & { isDeleted?: boolean })[] = JSON.parse(raw);
-    return includeDeleted ? testimonials : testimonials.filter(t => !t.isDeleted);
+    let filtered = includeDeleted ? testimonials : testimonials.filter(t => !t.isDeleted);
+    
+    // Dynamically filter out default template testimonials if at least one custom testimonial exists
+    const hasCustom = filtered.some(t => t.id && !t.id.match(/^cl-[1-3]$/));
+    if (hasCustom) {
+      filtered = filtered.filter(t => !t.id.match(/^cl-[1-3]$/));
+    }
+    return filtered;
   },
 
   saveTestimonial(testimonial: TestimonialItem & { isDeleted?: boolean }): void {
@@ -541,7 +556,14 @@ export const dataStore = {
       return DEFAULT_LEADS;
     }
     const leads: Lead[] = JSON.parse(raw);
-    return includeDeleted ? leads : leads.filter(l => !l.isDeleted);
+    let filtered = includeDeleted ? leads : leads.filter(l => !l.isDeleted);
+    
+    // Dynamically filter out default template leads if at least one custom lead exists
+    const hasCustom = filtered.some(l => l.id && !l.id.match(/^lead-[1-2]$/));
+    if (hasCustom) {
+      filtered = filtered.filter(l => !l.id.match(/^lead-[1-2]$/));
+    }
+    return filtered;
   },
 
   addLead(lead: Omit<Lead, 'id' | 'timestamp' | 'status'>): Lead {

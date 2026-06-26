@@ -199,10 +199,10 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
                     <div className="mt-5 flex items-start justify-between gap-4 min-w-0 w-full">
                       <div className="transition-transform duration-300 group-hover:translate-x-1 min-w-0 flex-1">
                         {/* Sector details with Blue Accent Text */}
-                        <span className="font-mono text-xs font-black text-engineering-blue uppercase tracking-widest block break-words break-all whitespace-normal">
+                        <span className="font-mono text-xs font-black text-engineering-blue uppercase tracking-widest block break-words whitespace-normal">
                           {p.category} // {p.location} // <span className="text-green-600">{p.status}</span>
                         </span>
-                        <h3 className="font-display font-black text-xl text-black mt-1 group-hover:text-industrial-red transition-colors break-words break-all whitespace-normal">
+                        <h3 className="font-display font-black text-xl text-black mt-1 group-hover:text-industrial-red transition-colors break-words whitespace-normal">
                           {p.title}
                         </h3>
                       </div>

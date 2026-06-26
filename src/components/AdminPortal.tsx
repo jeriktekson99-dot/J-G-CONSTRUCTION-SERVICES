@@ -83,7 +83,18 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   const [changePasswordLoading, setChangePasswordLoading] = useState(false);
 
   // Active Panel/View states inside Dashboard
-  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => {
+    const saved = localStorage.getItem('jg_admin_active_tab');
+    if (saved && ['overview', 'leads', 'projects', 'testimonials', 'trash', 'settings'].includes(saved)) {
+      return saved as AdminTab;
+    }
+    return 'overview';
+  });
+  
+  useEffect(() => {
+    localStorage.setItem('jg_admin_active_tab', activeTab);
+  }, [activeTab]);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Social handles state

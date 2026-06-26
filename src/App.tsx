@@ -27,9 +27,46 @@ import { Project, dataStore } from './utils/dataStore';
 import { supabaseSync } from './utils/supabaseSync';
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<ViewType>('home');
+  const [currentView, setCurrentView] = useState<ViewType>(() => {
+    const hash = window.location.hash.replace('#', '');
+    const validViews = ['home', 'about', 'services', 'portfolio', 'get-started', 'privacy-policy', 'terms-of-use', 'safety-compliance', 'admin-portal'];
+    if (hash && validViews.includes(hash)) {
+      return hash as ViewType;
+    }
+    const saved = localStorage.getItem('jg_current_view');
+    if (saved && validViews.includes(saved)) {
+      return saved as ViewType;
+    }
+    return 'home';
+  });
+
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [syncVersion, setSyncVersion] = useState(0);
+
+  // Sync hash and localStorage on currentView changes
+  useEffect(() => {
+    localStorage.setItem('jg_current_view', currentView);
+    if (currentView === 'home') {
+      if (window.location.hash) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    } else {
+      window.location.hash = currentView;
+    }
+  }, [currentView]);
+
+  // Listen for hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      const validViews = ['home', 'about', 'services', 'portfolio', 'get-started', 'privacy-policy', 'terms-of-use', 'safety-compliance', 'admin-portal'];
+      if (hash && validViews.includes(hash)) {
+        setCurrentView(hash as ViewType);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   // Sync data with Supabase database on mount
   useEffect(() => {
