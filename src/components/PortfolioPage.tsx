@@ -27,6 +27,9 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedStatus, setSelectedStatus] = useState<string>('Completed');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const PROJECTS_PER_PAGE = 6;
 
   const categories = ['All', 'Structural Design', 'Commercial Build', 'Industrial Frameworks', 'Civil Works'] as const;
 
@@ -41,6 +44,16 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
                           p.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesStatus && matchesSearch;
   });
+
+  // Reset page to 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, selectedStatus]);
+
+  const indexOfLastProject = currentPage * PROJECTS_PER_PAGE;
+  const indexOfFirstProject = indexOfLastProject - PROJECTS_PER_PAGE;
+  const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+  const totalPages = Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE);
 
   if (selectedProject) {
     return (
@@ -164,7 +177,7 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
-            {filteredProjects.map((p) => {
+            {currentProjects.map((p) => {
               if (p.status === 'Completed') {
                 return (
                   <div 
@@ -243,6 +256,52 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
               }
             })}
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-16 flex justify-center items-center gap-3 font-mono text-xs">
+              <button
+                disabled={currentPage === 1}
+                onClick={() => {
+                  setCurrentPage(prev => Math.max(prev - 1, 1));
+                  window.scrollTo({ top: 300, behavior: 'smooth' });
+                }}
+                className="px-4 py-2 border border-black font-bold uppercase tracking-wider bg-white hover:bg-gray-50 text-black disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+              >
+                ◀ Prev
+              </button>
+              
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => {
+                      setCurrentPage(pageNum);
+                      window.scrollTo({ top: 300, behavior: 'smooth' });
+                    }}
+                    className={`px-3 py-2 border border-black font-bold transition-colors cursor-pointer ${
+                      currentPage === pageNum 
+                        ? 'bg-black text-white' 
+                        : 'bg-white hover:bg-gray-50 text-black'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                disabled={currentPage === totalPages}
+                onClick={() => {
+                  setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                  window.scrollTo({ top: 300, behavior: 'smooth' });
+                }}
+                className="px-4 py-2 border border-black font-bold uppercase tracking-wider bg-white hover:bg-gray-50 text-black disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+              >
+                Next ▶
+              </button>
+            </div>
+          )}
 
         </div>
       </section>

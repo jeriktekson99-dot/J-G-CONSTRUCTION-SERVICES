@@ -41,7 +41,7 @@ export default function GetStartedPage({ onScrollToSection }: GetStartedPageProp
 
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [openFaqId, setOpenFaqId] = useState<string | null>("faq-1");
+  const [openFaqId, setOpenFaqId] = useState<string | null>(null);
 
   const faqs: FaqItem[] = [
     {

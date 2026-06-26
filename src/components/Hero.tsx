@@ -109,7 +109,7 @@ export default function Hero({ onGetStarted, onViewProjects }: HeroProps) {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-start items-stretch sm:items-center">
               <button
-                onClick={handleFocusForm}
+                onClick={onGetStarted}
                 className="bg-industrial-red hover:bg-industrial-red-hover text-white font-display font-bold py-4 px-8 rounded-none transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 text-center shadow-[4px_4px_0px_#111111] active:shadow-[0px_0px_0px_#111111] border-2 border-black cursor-pointer flex items-center justify-center gap-2"
               >
                 Schedule a Consultation
