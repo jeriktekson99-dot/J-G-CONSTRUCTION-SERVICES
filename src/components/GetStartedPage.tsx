@@ -96,17 +96,15 @@ export default function GetStartedPage({ onScrollToSection }: GetStartedPageProp
     }
 
     setLoading(true);
-    setTimeout(() => {
-      dataStore.addLead({
-        fullName: formData.fullName,
-        companyEmail: formData.companyEmail,
-        phone: formData.phone || "N/A",
-        projectScope: formData.projectScope,
-        serviceCategory: formData.serviceCategory
-      });
-      setLoading(false);
-      setSubmitted(true);
-    }, 900);
+    dataStore.addLead({
+      fullName: formData.fullName,
+      companyEmail: formData.companyEmail,
+      phone: formData.phone || "N/A",
+      projectScope: formData.projectScope,
+      serviceCategory: formData.serviceCategory
+    });
+    setLoading(false);
+    setSubmitted(true);
   };
 
   const handleReset = () => {

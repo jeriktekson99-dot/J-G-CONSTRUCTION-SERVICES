@@ -243,7 +243,7 @@ export const dataStore = {
   },
 
   // PROJECTS CRUD
-  getProjects(includeDeleted = false): Project[] {
+  getProjects(includeDeleted = false, includeSystemSettings = false): Project[] {
     if (!isClient) return DEFAULT_PROJECTS;
     const raw = localStorage.getItem('jg_projects');
     if (!raw) {
@@ -301,6 +301,26 @@ export const dataStore = {
     // Always filter out default template projects completely for good
     filteredProjects = filteredProjects.filter(p => !p.id || !p.id.match(/^proj-[1-8]$/));
 
+    // Filter out our system social settings pseudo-project
+    if (!includeSystemSettings) {
+      filteredProjects = filteredProjects.filter(p => p.id !== 'sys_social_links');
+    }
+
+    // Sort projects: Newest first (descending order of updatedAt/timestamp)
+    filteredProjects.sort((a, b) => {
+      const timeA = a.updatedAt || 0;
+      const timeB = b.updatedAt || 0;
+      if (timeB !== timeA) {
+        return timeB - timeA;
+      }
+      const numA = Number(a.id) || 0;
+      const numB = Number(b.id) || 0;
+      if (numB !== numA) {
+        return numB - numA;
+      }
+      return b.id.localeCompare(a.id);
+    });
+
     return filteredProjects;
   },
 
@@ -310,7 +330,7 @@ export const dataStore = {
 
   saveProject(project: Project): void {
     if (!isClient) return;
-    const projects = this.getProjects(true);
+    const projects = this.getProjects(true, true);
     const index = projects.findIndex(p => p.id === project.id);
     const updatedProject = { ...project, updatedAt: Date.now() };
     if (index >= 0) {
@@ -358,7 +378,7 @@ export const dataStore = {
     if (!isClient) return DEFAULT_LEADS;
     const raw = localStorage.getItem('jg_leads');
     if (!raw) {
-      localStorage.setItem('jg_leads', JSON.stringify(DEFAULT_LEADS));
+      safeSetItem('jg_leads', JSON.stringify(DEFAULT_LEADS));
       return DEFAULT_LEADS;
     }
     const leads: Lead[] = JSON.parse(raw);
@@ -366,6 +386,14 @@ export const dataStore = {
     
     // Always filter out default template leads completely for good
     filtered = filtered.filter(l => !l.id || !l.id.match(/^lead-[1-2]$/));
+
+    // Sort leads: Newest first (descending order of timestamp)
+    filtered.sort((a, b) => {
+      const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return timeB - timeA;
+    });
+
     return filtered;
   },
 
@@ -379,7 +407,7 @@ export const dataStore = {
     };
     leads.unshift(newLead);
     if (isClient) {
-      localStorage.setItem('jg_leads', JSON.stringify(leads));
+      safeSetItem('jg_leads', JSON.stringify(leads));
       supabaseSync.pushLead(newLead);
     }
     return newLead;
@@ -391,7 +419,7 @@ export const dataStore = {
     const index = leads.findIndex(l => l.id === id);
     if (index >= 0) {
       leads[index].status = status;
-      localStorage.setItem('jg_leads', JSON.stringify(leads));
+      safeSetItem('jg_leads', JSON.stringify(leads));
       supabaseSync.pushLead(leads[index]);
     }
   },
@@ -402,7 +430,7 @@ export const dataStore = {
     const index = leads.findIndex(l => l.id === id);
     if (index >= 0) {
       leads[index].isDeleted = true;
-      localStorage.setItem('jg_leads', JSON.stringify(leads));
+      safeSetItem('jg_leads', JSON.stringify(leads));
       await supabaseSync.pushLead(leads[index]);
     }
   },
@@ -413,7 +441,7 @@ export const dataStore = {
     const index = leads.findIndex(l => l.id === id);
     if (index >= 0) {
       leads[index].isDeleted = false;
-      localStorage.setItem('jg_leads', JSON.stringify(leads));
+      safeSetItem('jg_leads', JSON.stringify(leads));
       await supabaseSync.pushLead(leads[index]);
     }
   },
@@ -421,7 +449,7 @@ export const dataStore = {
   async hardDeleteLead(id: string): Promise<void> {
     if (!isClient) return;
     const leads = this.getLeads(true).filter(l => l.id !== id);
-    localStorage.setItem('jg_leads', JSON.stringify(leads));
+    safeSetItem('jg_leads', JSON.stringify(leads));
     await supabaseSync.deleteLead(id);
   },
 
@@ -430,12 +458,12 @@ export const dataStore = {
     if (!isClient) return DEFAULT_SERVICES;
     const raw = localStorage.getItem('jg_services');
     if (!raw) {
-      localStorage.setItem('jg_services', JSON.stringify(DEFAULT_SERVICES));
+      safeSetItem('jg_services', JSON.stringify(DEFAULT_SERVICES));
       return DEFAULT_SERVICES;
     }
     const parsed = JSON.parse(raw);
     if (parsed.length < DEFAULT_SERVICES.length) {
-      localStorage.setItem('jg_services', JSON.stringify(DEFAULT_SERVICES));
+      safeSetItem('jg_services', JSON.stringify(DEFAULT_SERVICES));
       return DEFAULT_SERVICES;
     }
     return parsed;
@@ -450,7 +478,7 @@ export const dataStore = {
     } else {
       services.push(service);
     }
-    localStorage.setItem('jg_services', JSON.stringify(services));
+    safeSetItem('jg_services', JSON.stringify(services));
     supabaseSync.pushService(service);
   },
 
@@ -458,7 +486,7 @@ export const dataStore = {
     if (!isClient) return DEFAULT_HISTORICAL_RECORDS;
     const raw = localStorage.getItem('jg_historical_records');
     if (!raw) {
-      localStorage.setItem('jg_historical_records', JSON.stringify(DEFAULT_HISTORICAL_RECORDS));
+      safeSetItem('jg_historical_records', JSON.stringify(DEFAULT_HISTORICAL_RECORDS));
       return DEFAULT_HISTORICAL_RECORDS;
     }
     return JSON.parse(raw);
@@ -473,7 +501,7 @@ export const dataStore = {
     } else {
       records.push(record);
     }
-    localStorage.setItem('jg_historical_records', JSON.stringify(records));
+    safeSetItem('jg_historical_records', JSON.stringify(records));
     supabaseSync.pushHistoricalRecord(record);
   },
 

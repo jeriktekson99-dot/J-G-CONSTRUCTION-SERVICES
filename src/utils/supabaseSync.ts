@@ -102,6 +102,62 @@ let syncStatus: SupabaseSyncStatus = {
 // Tracks active mutations to prevent background pullAll races
 let activeMutationsCount = 0;
 
+interface LocalMutation {
+  id: string;
+  table: string;
+  type: 'upsert' | 'delete';
+  timestamp: number;
+  data?: any;
+}
+
+const localMutations = new Map<string, LocalMutation>();
+
+export function registerLocalMutation(table: string, id: string, type: 'upsert' | 'delete', data?: any) {
+  localMutations.set(`${table}:${id}`, {
+    id,
+    table,
+    type,
+    timestamp: Date.now(),
+    data
+  });
+}
+
+function cleanAndGetActiveMutations(table: string): LocalMutation[] {
+  const now = Date.now();
+  const active: LocalMutation[] = [];
+  for (const [key, mutation] of localMutations.entries()) {
+    if (now - mutation.timestamp > 15000) {
+      localMutations.delete(key);
+    } else if (mutation.table === table) {
+      active.push(mutation);
+    }
+  }
+  return active;
+}
+
+function mergeRemoteWithLocalMutations(table: string, remoteData: any[]): any[] {
+  const active = cleanAndGetActiveMutations(table);
+  if (active.length === 0) return remoteData;
+
+  // Clone remoteData
+  let merged = [...remoteData];
+
+  for (const mutation of active) {
+    if (mutation.type === 'delete') {
+      merged = merged.filter(item => item.id !== mutation.id);
+    } else if (mutation.type === 'upsert') {
+      const idx = merged.findIndex(item => item.id === mutation.id);
+      if (idx >= 0) {
+        merged[idx] = { ...merged[idx], ...mutation.data };
+      } else {
+        merged.unshift(mutation.data);
+      }
+    }
+  }
+
+  return merged;
+}
+
 async function runMutation<T>(op: () => Promise<T>): Promise<T> {
   activeMutationsCount++;
   try {
@@ -299,7 +355,7 @@ export const supabaseSync = {
     let missingTables: string[] = [];
     let firstGeneralError: string | null = null;
 
-    console.log('Syncing data with Supabase in parallel...');
+    // Syncing data in parallel (silenced log to keep terminal clean)
 
     // Fetch all tables in parallel to optimize load speeds
     let dbProjects: any[] | null = null;
@@ -373,13 +429,32 @@ export const supabaseSync = {
       defaultData: any[]
     ) => {
       if (remoteData === null) {
-        console.log(`[Sync] Skipping ${tableName} because remote query returned null (error or offline).`);
         return;
       }
 
-      if (remoteData.length > 0) {
-        console.log(`[Sync] Pulling ${remoteData.length} active records for ${tableName} from Supabase.`);
-        localStorage.setItem(localStorageKey, JSON.stringify(normalizeToCamelCase(remoteData)));
+      // Sync the dynamic social settings if this is projects table
+      if (tableName === 'projects' && remoteData) {
+        const socialSetting = remoteData.find(p => p.id === 'sys_social_links');
+        if (socialSetting) {
+          try {
+            const urls = JSON.parse(socialSetting.description);
+            if (urls && typeof urls === 'object') {
+              if (urls.facebook) localStorage.setItem('jg_facebook_url', urls.facebook);
+              if (urls.tiktok) localStorage.setItem('jg_tiktok_url', urls.tiktok);
+              if (urls.instagram) localStorage.setItem('jg_instagram_url', urls.instagram);
+              window.dispatchEvent(new Event('jg_social_routing_updated'));
+            }
+          } catch (e) {
+            console.warn('Failed to parse remote social settings:', e);
+          }
+        }
+      }
+
+      // Merge remote data with active local mutations to prevent race conditions or overwriting!
+      const mergedRemote = mergeRemoteWithLocalMutations(tableName, remoteData);
+
+      if (mergedRemote.length > 0) {
+        localStorage.setItem(localStorageKey, JSON.stringify(normalizeToCamelCase(mergedRemote)));
       } else {
         // Remote table has 0 records. Check if localStorage has records.
         const localRaw = localStorage.getItem(localStorageKey);
@@ -392,7 +467,6 @@ export const supabaseSync = {
 
         if (localData.length === 0) {
           // Both remote and local are completely empty -> load default records and attempt to upload them.
-          console.log(`[Sync] Remote and local for ${tableName} are empty. Bootstrapping with template defaults.`);
           localStorage.setItem(localStorageKey, JSON.stringify(defaultData));
           if (isSupabaseConfigured && supabase) {
             for (const item of defaultData) {
@@ -400,20 +474,23 @@ export const supabaseSync = {
             }
           }
         } else {
-          // Local storage has records but remote has 0 records.
-          // This happens when database is newly provisioned, OR if user is logged out (and RLS blocked the read).
-          console.log(`[Sync] Remote has 0 records for ${tableName}, but local has ${localData.length} records. Uploading local state to seed remote...`);
+          // If we have active delete mutations, we do not seed the empty database again!
+          const activeDeletes = cleanAndGetActiveMutations(tableName).filter(m => m.type === 'delete');
+          if (activeDeletes.length > 0) {
+            localStorage.setItem(localStorageKey, JSON.stringify([]));
+            return;
+          }
+
+          // Otherwise, local storage has records but remote has 0 records. Seeding.
           if (isSupabaseConfigured && supabase) {
             try {
               for (const item of localData) {
                 await safeUpsert(tableName, item);
               }
-              console.log(`[Sync] Successfully seeded remote ${tableName} with local data.`);
             } catch (err: any) {
-              console.warn(`[Sync] Seeding remote table ${tableName} failed (this is expected if unauthenticated):`, err?.message || err);
+              console.warn(`[Sync] Seeding remote table ${tableName} failed:`, err?.message || err);
             }
           }
-          // IMPORTANT: DO NOT clear local storage! We preserve local data so logout or RLS doesn't wipe the app's state!
         }
       }
     };
@@ -437,8 +514,7 @@ export const supabaseSync = {
     };
     notifyStatusChange();
 
-    console.log('Supabase sync phase ended.', syncStatus);
-
+    // Silenced terminal output for phase completion to maintain a pristine, quiet environment
     if (syncStatus.hasError) {
       console.warn('⚠️ SUPABASE SYNC TROUBLESHOOTING GUIDE:');
       console.warn('Your app has a Supabase configuration, but the connection or tables are not fully set up.');
@@ -455,14 +531,13 @@ export const supabaseSync = {
         console.warn(`👉 Error details: ${firstGeneralError}`);
         console.warn('💡 Tip: Please verify your VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are fully correct with no extra spaces or quotes.');
       }
-    } else {
-      console.log('✅ SUCCESS: Supabase is fully connected, synchronized, and all tables are live!');
     }
 
     return !syncStatus.hasError;
   },
 
   async pushProject(project: Project): Promise<void> {
+    registerLocalMutation('projects', project.id, 'upsert', project);
     if (syncStatus.missingTables.includes('projects')) return;
     return runMutation(async () => {
       try {
@@ -474,6 +549,7 @@ export const supabaseSync = {
   },
 
   async deleteProject(id: string): Promise<void> {
+    registerLocalMutation('projects', id, 'delete');
     if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes('projects')) return;
     return runMutation(async () => {
       try {
@@ -488,6 +564,7 @@ export const supabaseSync = {
 
 
   async pushLead(lead: Lead): Promise<void> {
+    registerLocalMutation('leads', lead.id, 'upsert', lead);
     if (syncStatus.missingTables.includes('leads')) return;
     return runMutation(async () => {
       try {
@@ -499,6 +576,7 @@ export const supabaseSync = {
   },
 
   async deleteLead(id: string): Promise<void> {
+    registerLocalMutation('leads', id, 'delete');
     if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes('leads')) return;
     return runMutation(async () => {
       try {
@@ -511,6 +589,7 @@ export const supabaseSync = {
   },
 
   async pushService(service: ServiceItem): Promise<void> {
+    registerLocalMutation('services', service.id, 'upsert', service);
     if (syncStatus.missingTables.includes('services')) return;
     return runMutation(async () => {
       try {
@@ -522,6 +601,7 @@ export const supabaseSync = {
   },
 
   async pushHistoricalRecord(record: HistoricalRecord): Promise<void> {
+    registerLocalMutation('historical_records', record.id, 'upsert', record);
     if (syncStatus.missingTables.includes('historical_records')) return;
     return runMutation(async () => {
       try {

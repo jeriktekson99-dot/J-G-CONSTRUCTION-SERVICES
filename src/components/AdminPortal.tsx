@@ -1910,7 +1910,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                     </div>
                     
                     <p className="font-mono text-[10px] text-gray-500 uppercase leading-relaxed">
-                      // ROTATE CURRENT ADMINISTRATIVE ACCESS CREDENTIALS //
+                      Change admin password
                     </p>
 
                     <form onSubmit={handleChangePasswordSubmit} className="space-y-4">
@@ -1989,7 +1989,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                     </div>
 
                     <p className="font-mono text-[10px] text-gray-500 uppercase leading-relaxed">
-                      // RE-MAP OUTBOUND SOCIAL GRAPH ROUTING DESTINATIONS LINKED LOCALLY BY PUBLIC SITE FOOTERS //
+                      Update social media links
                     </p>
 
                     <form onSubmit={(e) => {
@@ -2023,6 +2023,27 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                       localStorage.setItem('jg_facebook_url', finalFacebook);
                       localStorage.setItem('jg_tiktok_url', finalTiktok);
                       localStorage.setItem('jg_instagram_url', finalInstagram);
+
+                      // Push to Supabase via a system settings pseudo-project
+                      const settingsProject: Project = {
+                        id: 'sys_social_links',
+                        title: 'System Social Links Settings',
+                        category: 'System',
+                        location: 'System',
+                        image: '',
+                        scope: '',
+                        client: 'System',
+                        completedYear: '2026',
+                        complianceRatio: '100%',
+                        description: JSON.stringify({
+                          facebook: finalFacebook,
+                          tiktok: finalTiktok,
+                          instagram: finalInstagram
+                        }),
+                        status: 'Ongoing',
+                        isDeleted: false
+                      };
+                      dataStore.saveProject(settingsProject);
                       
                       // Notify document to trigger a local custom event or state refresh
                       window.dispatchEvent(new Event('jg_social_routing_updated'));
@@ -3188,42 +3209,43 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                         )}
                       </div>
 
-                        {/* Bulked selection Trash commands panel */}
-                        {selectedTrashKeys.length > 0 && (
-                          <div className="bg-black text-white p-4 border-2 border-black flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs shadow-[4px_4px_0px_#A3E635] mt-4">
-                            <div className="flex items-center gap-3">
-                              <span className="bg-[#A3E635] text-black font-extrabold px-2 py-1 select-none font-bold uppercase text-[10px]">
-                                {selectedTrashKeys.length} Items Selected
-                              </span>
-                            </div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <button 
-                                onClick={handleBulkRestoreTrash}
-                                className="bg-white hover:bg-emerald-50 text-black hover:text-emerald-800 font-black uppercase px-3 py-1.5 cursor-pointer border border-black transition-colors text-[11px]"
-                              >
-                                Restore
-                              </button>
-                              <button 
-                                onClick={handleBulkPurgeTrash}
-                                className="bg-industrial-red hover:bg-red-700 text-white font-black uppercase px-3 py-1.5 cursor-pointer border border-transparent transition-colors flex items-center gap-1.5 text-[11px]"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                <span>Delete Permanently</span>
-                              </button>
-                              <button 
-                                onClick={() => setSelectedTrashKeys([])}
-                                className="text-gray-400 hover:text-white uppercase font-black px-2 py-1 flex items-center justify-center cursor-pointer"
-                                title="Deselect All"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        )}
                       </>
                     );
                   })()}
                 </div>
+
+                {/* Bulked selection Trash commands panel - Rendered outside the container for optimal non-sticky spacing */}
+                {selectedTrashKeys.length > 0 && (
+                  <div className="bg-black text-white p-4 border-2 border-black flex flex-col sm:flex-row items-center justify-between gap-3 font-mono text-xs shadow-[4px_4px_0px_#A3E635] mt-6">
+                    <div className="flex items-center gap-3">
+                      <span className="bg-[#A3E635] text-black font-extrabold px-2 py-1 select-none font-bold uppercase text-[10px]">
+                        {selectedTrashKeys.length} Items Selected
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button 
+                        onClick={handleBulkRestoreTrash}
+                        className="bg-white hover:bg-emerald-50 text-black hover:text-emerald-800 font-black uppercase px-3 py-1.5 cursor-pointer border border-black transition-colors text-[11px]"
+                      >
+                        Restore
+                      </button>
+                      <button 
+                        onClick={handleBulkPurgeTrash}
+                        className="bg-industrial-red hover:bg-red-700 text-white font-black uppercase px-3 py-1.5 cursor-pointer border border-transparent transition-colors flex items-center gap-1.5 text-[11px]"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Delete Permanently</span>
+                      </button>
+                      <button 
+                        onClick={() => setSelectedTrashKeys([])}
+                        className="text-gray-400 hover:text-white uppercase font-black px-2 py-1 flex items-center justify-center cursor-pointer"
+                        title="Deselect All"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
