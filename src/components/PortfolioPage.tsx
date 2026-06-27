@@ -20,9 +20,10 @@ interface Project {
 
 interface PortfolioPageProps {
   onScrollToSection: (id: string) => void;
+  isInitialSyncLoading?: boolean;
 }
 
-export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps) {
+export default function PortfolioPage({ onScrollToSection, isInitialSyncLoading = false }: PortfolioPageProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedStatus, setSelectedStatus] = useState<string>('Completed');
@@ -34,6 +35,8 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
   const categories = ['All', 'Structural Design', 'Commercial Build', 'Industrial Frameworks', 'Civil Works'] as const;
 
   const projects = dataStore.getProjects(false) as unknown as Project[];
+  const hasCustomProjects = projects.some(p => p.id && !p.id.match(/^proj-[1-8]$/));
+  const showLoadingBar = isInitialSyncLoading && !hasCustomProjects;
 
   const filteredProjects = projects.filter(p => {
     const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
@@ -176,131 +179,150 @@ export default function PortfolioPage({ onScrollToSection }: PortfolioPageProps)
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
-            {currentProjects.map((p) => {
-              if (p.status === 'Completed') {
-                return (
-                  <div 
-                    key={p.id}
-                    onClick={() => setSelectedProject(p)}
-                    className="group cursor-pointer text-left focus:outline-none"
-                  >
-                    {/* Image container frame with thin black border, 16:9 ratio */}
-                    <div className="aspect-[16/9] border border-black overflow-hidden bg-gray-50 transition-all duration-300 group-hover:border-engineering-blue shadow-[4px_4px_0px_transparent] group-hover:shadow-[4px_4px_0px_#111111]">
-                      <img 
-                        src={p.image} 
-                        alt={p.title} 
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover transition-all duration-500 group-hover:scale-102"
-                      />
-                    </div>
+          {showLoadingBar ? (
+            <div className="py-16 flex flex-col items-center justify-center text-center font-mono text-xs text-gray-500 w-full max-w-md mx-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2 h-2 rounded-full bg-industrial-red animate-ping" />
+                <span className="uppercase font-bold tracking-widest text-[#111111]">
+                  SYNCHRONIZING REMOTE ARCHIVE // LIVE
+                </span>
+              </div>
+              <div className="w-full h-2.5 bg-gray-100 border border-black overflow-hidden relative">
+                <div className="absolute top-0 h-full bg-engineering-blue animate-loading-bar" />
+              </div>
+              <p className="mt-3 text-[10px] text-gray-400 uppercase tracking-wider">
+                Retrieving design specs & compliance records...
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16">
+                {currentProjects.map((p) => {
+                  if (p.status === 'Completed') {
+                    return (
+                      <div 
+                        key={p.id}
+                        onClick={() => setSelectedProject(p)}
+                        className="group cursor-pointer text-left focus:outline-none"
+                      >
+                        {/* Image container frame with thin black border, 16:9 ratio */}
+                        <div className="aspect-[16/9] border border-black overflow-hidden bg-gray-50 transition-all duration-300 group-hover:border-engineering-blue shadow-[4px_4px_0px_transparent] group-hover:shadow-[4px_4px_0px_#111111]">
+                          <img 
+                            src={p.image} 
+                            alt={p.title} 
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-102"
+                          />
+                        </div>
 
-                    {/* Details layout */}
-                    <div className="mt-5 flex items-start justify-between gap-4 min-w-0 w-full">
-                      <div className="transition-transform duration-300 group-hover:translate-x-1 min-w-0 flex-1">
-                        {/* Sector details with Blue Accent Text */}
-                        <span className="font-mono text-xs font-black text-engineering-blue uppercase tracking-widest block break-words whitespace-normal">
-                          {p.category} // {p.location} // <span className="text-green-600">{p.status}</span>
-                        </span>
-                        <h3 className="font-display font-black text-xl text-black mt-1 group-hover:text-industrial-red transition-colors break-words whitespace-normal">
-                          {p.title}
-                        </h3>
-                      </div>
+                        {/* Details layout */}
+                        <div className="mt-5 flex items-start justify-between gap-4 min-w-0 w-full">
+                          <div className="transition-transform duration-300 group-hover:translate-x-1 min-w-0 flex-1">
+                            {/* Sector details with Blue Accent Text */}
+                            <span className="font-mono text-xs font-black text-engineering-blue uppercase tracking-widest block break-words whitespace-normal">
+                              {p.category} // {p.location} // <span className="text-green-600">{p.status}</span>
+                            </span>
+                            <h3 className="font-display font-black text-xl text-black mt-1 group-hover:text-industrial-red transition-colors break-words whitespace-normal">
+                              {p.title}
+                            </h3>
+                          </div>
 
-                      {/* Right directional arrow link indicator */}
-                      <div className="border border-black p-2 bg-white transition-colors group-hover:bg-black group-hover:text-white shrink-0 mt-1">
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                          {/* Right directional arrow link indicator */}
+                          <div className="border border-black p-2 bg-white transition-colors group-hover:bg-black group-hover:text-white shrink-0 mt-1">
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              } else {
-                return (
-                  <div 
-                    key={p.id}
-                    className="border-2 border-black bg-white p-6 shadow-[5px_5px_0px_#111111] hover:shadow-[7px_7px_0px_#1B49B8] transition-all duration-300 text-left rounded-none flex flex-col justify-between min-w-0 w-full"
-                  >
-                    <div className="min-w-0 w-full">
-                      {/* Status indicator badge */}
-                      <div className="font-mono text-[9px] text-gray-500 font-extrabold uppercase tracking-widest mb-3 flex items-center justify-between gap-2">
-                        <span className="bg-[#111111] text-white px-2 py-0.5 font-bold shrink-0">PROJECT STATUS // {p.status}</span>
-                        <span className="text-industrial-red font-bold shrink-0">// IN PROGRESS</span>
-                      </div>
+                    );
+                  } else {
+                    return (
+                      <div 
+                        key={p.id}
+                        className="border-2 border-black bg-white p-6 shadow-[5px_5px_0px_#111111] hover:shadow-[7px_7px_0px_#1B49B8] transition-all duration-300 text-left rounded-none flex flex-col justify-between min-w-0 w-full"
+                      >
+                        <div className="min-w-0 w-full">
+                          {/* Status indicator badge */}
+                          <div className="font-mono text-[9px] text-gray-500 font-extrabold uppercase tracking-widest mb-3 flex items-center justify-between gap-2">
+                            <span className="bg-[#111111] text-white px-2 py-0.5 font-bold shrink-0">PROJECT STATUS // {p.status}</span>
+                            <span className="text-industrial-red font-bold shrink-0">// IN PROGRESS</span>
+                          </div>
 
-                      <h3 className="font-display font-black text-[#111111] text-lg sm:text-xl uppercase tracking-tight mb-2 break-words break-all whitespace-normal">
-                        {p.title}
-                      </h3>
+                          <h3 className="font-display font-black text-[#111111] text-lg sm:text-xl uppercase tracking-tight mb-2 break-words break-all whitespace-normal">
+                            {p.title}
+                          </h3>
 
-                      <p className="font-sans text-xs sm:text-sm text-gray-600 leading-relaxed mb-6 break-words break-all whitespace-normal">
-                        {p.description}
-                      </p>
-                    </div>
+                          <p className="font-sans text-xs sm:text-sm text-gray-600 leading-relaxed mb-6 break-words break-all whitespace-normal">
+                            {p.description}
+                          </p>
+                        </div>
 
-                    {/* Three custom basis detail list */}
-                    <div className="border-t border-dashed border-gray-200 pt-4 space-y-2.5 font-mono text-[10px] uppercase text-gray-600 min-w-0 w-full">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 min-w-0 w-full">
-                        <span className="font-bold text-black shrink-0">CLIENT REPRESENTATIVE:</span>
-                        <span className="text-gray-900 font-medium sm:text-right truncate max-w-full block" title={p.client}>{p.client}</span>
+                        {/* Three custom basis detail list */}
+                        <div className="border-t border-dashed border-gray-200 pt-4 space-y-2.5 font-mono text-[10px] uppercase text-gray-600 min-w-0 w-full">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 min-w-0 w-full">
+                            <span className="font-bold text-black shrink-0">CLIENT REPRESENTATIVE:</span>
+                            <span className="text-gray-900 font-medium sm:text-right truncate max-w-full block" title={p.client}>{p.client}</span>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 min-w-0 w-full">
+                            <span className="font-bold text-black shrink-0">SECTOR CATEGORIZATION:</span>
+                            <span className="text-[#1B49B8] font-bold sm:text-right truncate max-w-full block" title={p.category}>{p.category}</span>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 min-w-0 w-full">
+                            <span className="font-bold text-black shrink-0">MUNICIPAL LOCATION:</span>
+                            <span className="text-gray-900 font-medium sm:text-right truncate max-w-full block" title={p.location}>{p.location}, PH</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 min-w-0 w-full">
-                        <span className="font-bold text-black shrink-0">SECTOR CATEGORIZATION:</span>
-                        <span className="text-[#1B49B8] font-bold sm:text-right truncate max-w-full block" title={p.category}>{p.category}</span>
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 min-w-0 w-full">
-                        <span className="font-bold text-black shrink-0">MUNICIPAL LOCATION:</span>
-                        <span className="text-gray-900 font-medium sm:text-right truncate max-w-full block" title={p.location}>{p.location}, PH</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-            })}
-          </div>
-
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="mt-16 flex justify-center items-center gap-3 font-mono text-xs">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => {
-                  setCurrentPage(prev => Math.max(prev - 1, 1));
-                  window.scrollTo({ top: 300, behavior: 'smooth' });
-                }}
-                className="px-4 py-2 border border-black font-bold uppercase tracking-wider bg-white hover:bg-gray-50 text-black disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
-              >
-                ◀ Prev
-              </button>
-              
-              <div className="flex items-center gap-1.5">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                  <button
-                    key={pageNum}
-                    onClick={() => {
-                      setCurrentPage(pageNum);
-                      window.scrollTo({ top: 300, behavior: 'smooth' });
-                    }}
-                    className={`px-3 py-2 border border-black font-bold transition-colors cursor-pointer ${
-                      currentPage === pageNum 
-                        ? 'bg-black text-white' 
-                        : 'bg-white hover:bg-gray-50 text-black'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                ))}
+                    );
+                  }
+                })}
               </div>
 
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => {
-                  setCurrentPage(prev => Math.min(prev + 1, totalPages));
-                  window.scrollTo({ top: 300, behavior: 'smooth' });
-                }}
-                className="px-4 py-2 border border-black font-bold uppercase tracking-wider bg-white hover:bg-gray-50 text-black disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
-              >
-                Next ▶
-              </button>
-            </div>
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="mt-16 flex justify-center items-center gap-3 font-mono text-xs">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => {
+                      setCurrentPage(prev => Math.max(prev - 1, 1));
+                      window.scrollTo({ top: 300, behavior: 'smooth' });
+                    }}
+                    className="px-4 py-2 border border-black font-bold uppercase tracking-wider bg-white hover:bg-gray-50 text-black disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                  >
+                    ◀ Prev
+                  </button>
+                  
+                  <div className="flex items-center gap-1.5">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        onClick={() => {
+                          setCurrentPage(pageNum);
+                          window.scrollTo({ top: 300, behavior: 'smooth' });
+                        }}
+                        className={`px-3 py-2 border border-black font-bold transition-colors cursor-pointer ${
+                          currentPage === pageNum 
+                            ? 'bg-black text-white' 
+                            : 'bg-white hover:bg-gray-50 text-black'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => {
+                      setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                      window.scrollTo({ top: 300, behavior: 'smooth' });
+                    }}
+                    className="px-4 py-2 border border-black font-bold uppercase tracking-wider bg-white hover:bg-gray-50 text-black disabled:opacity-30 disabled:pointer-events-none cursor-pointer transition-colors"
+                  >
+                    Next ▶
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
         </div>

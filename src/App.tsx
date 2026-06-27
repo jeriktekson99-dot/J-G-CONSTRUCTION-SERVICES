@@ -42,6 +42,7 @@ export default function App() {
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [syncVersion, setSyncVersion] = useState(0);
+  const [isInitialSyncLoading, setIsInitialSyncLoading] = useState(true);
 
   // Sync hash and localStorage on currentView changes
   useEffect(() => {
@@ -70,11 +71,56 @@ export default function App() {
 
   // Sync data with Supabase database on mount
   useEffect(() => {
+    setIsInitialSyncLoading(true);
     supabaseSync.pullAll().then(() => {
       // Apply monthly leads rollover logic
       dataStore.checkAndApplyRollover();
       setSyncVersion(prev => prev + 1);
+      setIsInitialSyncLoading(false);
+    }).catch((err) => {
+      console.error(err);
+      setIsInitialSyncLoading(false);
     });
+  }, []);
+
+  // Listen for local changes to dataStore to instantly update UI on this device
+  useEffect(() => {
+    const unsubscribe = dataStore.subscribe(() => {
+      setSyncVersion(prev => prev + 1);
+    });
+    return unsubscribe;
+  }, []);
+
+  // Near-instant sync across different devices (background polling & tab visibility/focus sync)
+  useEffect(() => {
+    const triggerSync = () => {
+      if (document.visibilityState === 'visible') {
+        supabaseSync.pullAll().then(() => {
+          setSyncVersion(prev => prev + 1);
+        }).catch((err) => {
+          console.warn('[Sync] Background polling sync failed:', err);
+        });
+      }
+    };
+
+    // Poll every 5 seconds when the tab/window is visible/active
+    const intervalId = setInterval(triggerSync, 5000);
+
+    // Sync instantly when user clicks back onto the tab or window
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        triggerSync();
+      }
+    };
+
+    window.addEventListener('focus', triggerSync);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('focus', triggerSync);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const handleSetView = (view: ViewType) => {
@@ -179,6 +225,7 @@ export default function App() {
                 <Showcase 
                   onScrollToSection={handleScrollToSection} 
                   onSelectProject={setSelectedProject}
+                  isInitialSyncLoading={isInitialSyncLoading}
                 />
                 
                 {/* Why Choose Us Pillars Section */}
@@ -201,7 +248,10 @@ export default function App() {
             )}
   
             {currentView === 'portfolio' && (
-              <PortfolioPage onScrollToSection={handleScrollToSection} />
+              <PortfolioPage 
+                onScrollToSection={handleScrollToSection} 
+                isInitialSyncLoading={isInitialSyncLoading}
+              />
             )}
   
             {currentView === 'get-started' && (

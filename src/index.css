@@ -10,6 +10,14 @@
   --color-industrial-red-hover: #A81212;
   --color-engineering-blue: #1B49B8;
   --color-engineering-blue-hover: #12338A;
+
+  --animate-loading-bar: loading-bar 1.5s infinite linear;
+
+  @keyframes loading-bar {
+    0% { left: -40%; width: 40%; }
+    50% { left: 40%; width: 50%; }
+    100% { left: 100%; width: 40%; }
+  }
 }
 
 /* Custom styles for engineering grid visuals, smooth focus transitions */

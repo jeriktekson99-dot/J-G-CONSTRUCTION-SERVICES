@@ -6,10 +6,15 @@ import { dataStore } from '../utils/dataStore';
 interface ShowcaseProps {
   onScrollToSection: (id: string) => void;
   onSelectProject: (project: Project) => void;
+  isInitialSyncLoading?: boolean;
 }
 
-export default function Showcase({ onScrollToSection, onSelectProject }: ShowcaseProps) {
-  const dbProjects = (dataStore.getProjects(false) as unknown as Project[])
+export default function Showcase({ onScrollToSection, onSelectProject, isInitialSyncLoading = false }: ShowcaseProps) {
+  const allProjects = dataStore.getProjects(false) as unknown as Project[];
+  const hasCustomProjects = allProjects.some(p => p.id && !p.id.match(/^proj-[1-8]$/));
+  const showLoadingBar = isInitialSyncLoading && !hasCustomProjects;
+
+  const dbProjects = allProjects
     .filter(p => p.status === 'Completed')
     .sort((a, b) => {
       // Primary: compare updatedAt
@@ -64,44 +69,61 @@ export default function Showcase({ onScrollToSection, onSelectProject }: Showcas
           </p>
         </div>
 
-        {/* 3-Column Grid Layout matching Portfolio Style 1-to-1 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-          {dbProjects.map((p) => (
-            <div 
-              key={p.id}
-              onClick={() => onSelectProject(p)}
-              className="group cursor-pointer text-left focus:outline-none"
-            >
-              {/* Image container frame with thin black border, 16:9 ratio */}
-              <div className="aspect-[16/9] border border-black overflow-hidden bg-gray-50 transition-all duration-300 group-hover:border-engineering-blue shadow-[4px_4px_0px_transparent] group-hover:shadow-[4px_4px_0px_#111111]">
-                <img 
-                  src={p.image} 
-                  alt={p.title} 
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-102"
-                />
-              </div>
-
-              {/* Details layout */}
-              <div className="mt-5 flex items-start justify-between gap-4 min-w-0 w-full">
-                <div className="transition-transform duration-300 group-hover:translate-x-1 min-w-0 flex-1">
-                  {/* Sector details with Blue Accent Text */}
-                  <span className="font-mono text-xs font-black text-engineering-blue uppercase tracking-widest block break-words whitespace-normal">
-                    {p.category} // {p.location} // <span className="text-green-600">{p.status}</span>
-                  </span>
-                  <h3 className="font-display font-black text-lg text-black mt-1 group-hover:text-industrial-red transition-colors break-words whitespace-normal">
-                    {p.title}
-                  </h3>
-                </div>
-
-                {/* Right directional arrow link indicator */}
-                <div className="border border-black p-2 bg-white transition-colors group-hover:bg-black group-hover:text-white shrink-0 mt-1">
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </div>
-              </div>
+        {showLoadingBar ? (
+          <div className="py-16 flex flex-col items-center justify-center text-center font-mono text-xs text-gray-500 w-full max-w-md mx-auto">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-industrial-red animate-ping" />
+              <span className="uppercase font-bold tracking-widest text-[#111111]">
+                SYNCHRONIZING REMOTE ARCHIVE // LIVE
+              </span>
             </div>
-          ))}
-        </div>
+            <div className="w-full h-2.5 bg-gray-100 border border-black overflow-hidden relative">
+              <div className="absolute top-0 h-full bg-engineering-blue animate-loading-bar" />
+            </div>
+            <p className="mt-3 text-[10px] text-gray-400 uppercase tracking-wider">
+              Retrieving design specs & compliance records...
+            </p>
+          </div>
+        ) : (
+          /* 3-Column Grid Layout matching Portfolio Style 1-to-1 */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
+            {dbProjects.map((p) => (
+              <div 
+                key={p.id}
+                onClick={() => onSelectProject(p)}
+                className="group cursor-pointer text-left focus:outline-none"
+              >
+                {/* Image container frame with thin black border, 16:9 ratio */}
+                <div className="aspect-[16/9] border border-black overflow-hidden bg-gray-50 transition-all duration-300 group-hover:border-engineering-blue shadow-[4px_4px_0px_transparent] group-hover:shadow-[4px_4px_0px_#111111]">
+                  <img 
+                    src={p.image} 
+                    alt={p.title} 
+                    referrerPolicy="no-referrer"
+                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-102"
+                  />
+                </div>
+
+                {/* Details layout */}
+                <div className="mt-5 flex items-start justify-between gap-4 min-w-0 w-full">
+                  <div className="transition-transform duration-300 group-hover:translate-x-1 min-w-0 flex-1">
+                    {/* Sector details with Blue Accent Text */}
+                    <span className="font-mono text-xs font-black text-engineering-blue uppercase tracking-widest block break-words whitespace-normal">
+                      {p.category} // {p.location} // <span className="text-green-600">{p.status}</span>
+                    </span>
+                    <h3 className="font-display font-black text-lg text-black mt-1 group-hover:text-industrial-red transition-colors break-words whitespace-normal">
+                      {p.title}
+                    </h3>
+                  </div>
+
+                  {/* Right directional arrow link indicator */}
+                  <div className="border border-black p-2 bg-white transition-colors group-hover:bg-black group-hover:text-white shrink-0 mt-1">
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
       </div>
     </section>

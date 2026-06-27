@@ -781,6 +781,45 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     }
   };
 
+  const compressImageBase64 = (base64: string, maxWidth = 800, maxHeight = 600, quality = 0.6): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width > height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(base64);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressed);
+      };
+      img.onerror = () => {
+        resolve(base64);
+      };
+      img.src = base64;
+    });
+  };
+
   const handleImageFiles = (files: FileList | File[]) => {
     Array.from(files).forEach((file) => {
       if (!file.type.startsWith('image/')) {
@@ -788,34 +827,37 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
         return;
       }
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const base64 = e.target?.result as string;
         if (base64) {
+          addLogEntry('IMG_UP', `Compressing and optimizing project image "${file.name}"...`);
+          const compressedBase64 = await compressImageBase64(base64);
+          
           if (editingProject) {
             setEditingProject(prev => {
               if (!prev) return null;
               const currentImages = prev.images || [];
-              const updatedImages = [...currentImages, base64];
-              const isDefaultImage = !prev.image || prev.image.startsWith('/src/assets/images');
+              const updatedImages = [...currentImages, compressedBase64];
+              const isDefaultImage = !prev.image || prev.image.startsWith('/src/assets/images') || prev.image.startsWith('/assets/images');
               return {
                 ...prev,
-                image: isDefaultImage ? base64 : prev.image,
+                image: isDefaultImage ? compressedBase64 : prev.image,
                 images: updatedImages
               };
             });
           } else {
             setNewProject(prev => {
               const currentImages = prev.images || [];
-              const updatedImages = [...currentImages, base64];
-              const isDefaultImage = !prev.image || prev.image.startsWith('/src/assets/images');
+              const updatedImages = [...currentImages, compressedBase64];
+              const isDefaultImage = !prev.image || prev.image.startsWith('/src/assets/images') || prev.image.startsWith('/assets/images');
               return {
                 ...prev,
-                image: isDefaultImage ? base64 : prev.image,
+                image: isDefaultImage ? compressedBase64 : prev.image,
                 images: updatedImages
               };
             });
           }
-          addLogEntry('IMG_UP', `Custom project image "${file.name}" ingested.`);
+          addLogEntry('IMG_UP', `Custom project image "${file.name}" successfully ingested and optimized.`);
         }
       };
       reader.readAsDataURL(file);

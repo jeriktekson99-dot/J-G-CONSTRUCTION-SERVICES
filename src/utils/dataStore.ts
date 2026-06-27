@@ -373,13 +373,31 @@ export const DEFAULT_HISTORICAL_RECORDS: HistoricalRecord[] = [
 // Helper to check if running in browser
 const isClient = typeof window !== 'undefined';
 
+const listeners = new Set<() => void>();
+
+const safeSetItem = (key: string, value: string): void => {
+  try {
+    localStorage.setItem(key, value);
+    listeners.forEach(fn => fn());
+  } catch (e) {
+    console.error(`[dataStore] QuotaExceededError or general storage failure for key "${key}".`, e);
+  }
+};
+
 export const dataStore = {
+  subscribe(listener: () => void): () => void {
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  },
+
   // PROJECTS CRUD
   getProjects(includeDeleted = false): Project[] {
     if (!isClient) return DEFAULT_PROJECTS;
     const raw = localStorage.getItem('jg_projects');
     if (!raw) {
-      localStorage.setItem('jg_projects', JSON.stringify(DEFAULT_PROJECTS));
+      safeSetItem('jg_projects', JSON.stringify(DEFAULT_PROJECTS));
       return DEFAULT_PROJECTS;
     }
     let projects: Project[] = JSON.parse(raw);
@@ -425,7 +443,7 @@ export const dataStore = {
     });
 
     if (migrated) {
-      localStorage.setItem('jg_projects', JSON.stringify(projects));
+      safeSetItem('jg_projects', JSON.stringify(projects));
     }
 
     let filteredProjects = includeDeleted ? projects : projects.filter(p => !p.isDeleted);
@@ -453,7 +471,7 @@ export const dataStore = {
     } else {
       projects.unshift(updatedProject);
     }
-    localStorage.setItem('jg_projects', JSON.stringify(projects));
+    safeSetItem('jg_projects', JSON.stringify(projects));
     supabaseSync.pushProject(updatedProject);
   },
 
@@ -463,7 +481,7 @@ export const dataStore = {
     const index = projects.findIndex(p => p.id === id);
     if (index >= 0) {
       projects[index].isDeleted = true;
-      localStorage.setItem('jg_projects', JSON.stringify(projects));
+      safeSetItem('jg_projects', JSON.stringify(projects));
       await supabaseSync.pushProject(projects[index]);
     }
   },
@@ -474,7 +492,7 @@ export const dataStore = {
     const index = projects.findIndex(p => p.id === id);
     if (index >= 0) {
       projects[index].isDeleted = false;
-      localStorage.setItem('jg_projects', JSON.stringify(projects));
+      safeSetItem('jg_projects', JSON.stringify(projects));
       await supabaseSync.pushProject(projects[index]);
     }
   },
@@ -482,7 +500,7 @@ export const dataStore = {
   async hardDeleteProject(id: string): Promise<void> {
     if (!isClient) return;
     const projects = this.getProjects(true).filter(p => p.id !== id);
-    localStorage.setItem('jg_projects', JSON.stringify(projects));
+    safeSetItem('jg_projects', JSON.stringify(projects));
     await supabaseSync.deleteProject(id);
   },
 
