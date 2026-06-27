@@ -37,7 +37,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { dataStore, Project, Lead } from '../utils/dataStore';
-import { TestimonialItem, HistoricalRecord } from '../types';
+import { HistoricalRecord } from '../types';
 import { supabaseSync, SupabaseSyncStatus } from '../utils/supabaseSync';
 import { isSupabaseConfigured, supabase } from '../utils/supabaseClient';
 import RichTextEditor from './RichTextEditor';
@@ -48,15 +48,21 @@ interface AdminPortalProps {
   onScrollToSection: (id: string) => void;
   setView: (view: 'home' | 'about' | 'services' | 'portfolio' | 'get-started' | 'privacy-policy' | 'terms-of-use' | 'safety-compliance') => void;
   onViewLiveProject?: (project: Project) => void;
+  syncVersion?: number;
 }
 
-type AdminTab = 'overview' | 'leads' | 'projects' | 'testimonials' | 'trash' | 'settings';
+type AdminTab = 'overview' | 'leads' | 'projects' | 'trash' | 'settings';
 
-export default function AdminPortal({ onScrollToSection, setView, onViewLiveProject }: AdminPortalProps) {
+export default function AdminPortal({ onScrollToSection, setView, onViewLiveProject, syncVersion }: AdminPortalProps) {
   // Authentication States
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('jg_admin_session') === 'active';
+    }
+    return false;
+  });
   const [authError, setAuthError] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<'email' | 'password' | 'resetEmail' | 'recoveryPassword' | 'recoveryConfirmPassword' | null>(null);
@@ -85,7 +91,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   // Active Panel/View states inside Dashboard
   const [activeTab, setActiveTab] = useState<AdminTab>(() => {
     const saved = localStorage.getItem('jg_admin_active_tab');
-    if (saved && ['overview', 'leads', 'projects', 'testimonials', 'trash', 'settings'].includes(saved)) {
+    if (saved && ['overview', 'leads', 'projects', 'trash', 'settings'].includes(saved)) {
       return saved as AdminTab;
     }
     return 'overview';
@@ -108,7 +114,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   // Dynamic Data States (Hydrated from local db)
   const [leads, setLeads] = useState<Lead[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
 
   // Search/Filters inside Panels
   const [leadSearch, setLeadSearch] = useState('');
@@ -118,7 +123,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   const [projectSearch, setProjectSearch] = useState('');
   const [projectFilter, setProjectFilter] = useState<'All' | 'Completed' | 'Ongoing'>('All');
   const [projShowSoftDeleted, setProjShowSoftDeleted] = useState(false);
-  const [trashFilter, setTrashFilter] = useState<'all' | 'leads' | 'projects' | 'testimonials'>('all');
+  const [trashFilter, setTrashFilter] = useState<'all' | 'leads' | 'projects'>('all');
 
   // Secondary Filters
   const [leadCategoryFilter, setLeadCategoryFilter] = useState('All');
@@ -134,7 +139,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   // Detailed Modal Viewing states
   const [viewingLead, setViewingLead] = useState<Lead | null>(null);
   const [viewingProject, setViewingProject] = useState<Project | null>(null);
-  const [viewingTestimonial, setViewingTestimonial] = useState<TestimonialItem | null>(null);
   const [previewProjectDetails, setPreviewProjectDetails] = useState<Project | null>(null);
 
   // Edit/Create Modals
@@ -157,18 +161,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   });
 
   const isOngoingMode = (editingProject ? editingProject.status : newProject.status) === 'Ongoing';
-
-  // Testimonial Form States
-  const [editingTestimonial, setEditingTestimonial] = useState<TestimonialItem | null>(null);
-  const [isCreatingTestimonial, setIsCreatingTestimonial] = useState(false);
-  const [newTestimonial, setNewTestimonial] = useState<TestimonialItem>({
-    id: '',
-    quote: '',
-    author: '',
-    role: '',
-    organization: '',
-    stars: 5
-  });
 
   // Action Feed State (Audit trail)
   const [auditLog, setAuditLog] = useState<string[]>([]);
@@ -316,6 +308,11 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
       unsubscribeSync();
     };
   }, [isSupabaseConfigured]);
+
+  // Sync data in real-time when the parent-level sync version updates
+  useEffect(() => {
+    refreshDataCollections();
+  }, [syncVersion]);
 
   // Handle Supabase Authentication State Changes and Password Recovery
   useEffect(() => {
@@ -512,7 +509,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     dataStore.checkAndApplyRollover();
     setLeads(dataStore.getLeads(true));
     setProjects(dataStore.getProjects(true));
-    setTestimonials(dataStore.getTestimonials(true));
     setHistoricalRecords(dataStore.getHistoricalRecords());
   };
 
@@ -667,8 +663,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
         await dataStore.restoreLead(id);
       } else if (type === 'project') {
         await dataStore.restoreProject(id);
-      } else if (type === 'testimonial') {
-        await dataStore.restoreTestimonial(id);
       }
     });
     await Promise.all(promises);
@@ -691,8 +685,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
             await dataStore.hardDeleteLead(id);
           } else if (type === 'project') {
             await dataStore.hardDeleteProject(id);
-          } else if (type === 'testimonial') {
-            await dataStore.hardDeleteTestimonial(id);
           }
         });
         await Promise.all(promises);
@@ -901,63 +893,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
     );
   };
 
-  // TESTIMONIAL ACTIONS
-  const handleSaveTestimonial = (e: React.FormEvent) => {
-    e.preventDefault();
-    const testimonialToSave = editingTestimonial
-      ? { ...editingTestimonial }
-      : { ...newTestimonial, id: 'cl-' + Date.now() };
-
-    if (!testimonialToSave.quote || !testimonialToSave.author || !testimonialToSave.role) {
-      triggerAlert('REQUISITION ERROR', 'Review forms require Author, Role, and Quote content fields.');
-      return;
-    }
-
-    dataStore.saveTestimonial(testimonialToSave);
-    refreshDataCollections();
-
-    if (editingTestimonial) {
-      addLogEntry('TEST_UPD', `Testimonial by "${testimonialToSave.author}" saved on indexes.`);
-      setEditingTestimonial(null);
-    } else {
-      addLogEntry('TEST_NEW', `New customer perspective by "${testimonialToSave.author}" verified and added.`);
-      setIsCreatingTestimonial(false);
-      setNewTestimonial({
-        id: '',
-        quote: '',
-        author: '',
-        role: '',
-        organization: '',
-        stars: 5
-      });
-    }
-  };
-
-  const handleSoftDeleteTestimonial = async (id: string) => {
-    await dataStore.deleteTestimonialSoft(id);
-    refreshDataCollections();
-    addLogEntry('TEST_S_DEL', `Testimonial reference ${id} marked as soft-deleted.`);
-  };
-
-  const handleRestoreTestimonial = async (id: string) => {
-    await dataStore.restoreTestimonial(id);
-    refreshDataCollections();
-    addLogEntry('TEST_REST', `Testimonial reference ${id} successfully restored.`);
-  };
-
-  const handleHardDeleteTestimonial = (id: string) => {
-    const t = dataStore.getTestimonials(true).find(item => item.id === id);
-    triggerConfirm(
-      "CONFIRM PERMANENT PURGE",
-      `Are you absolutely sure you want to permanently remove of client review by ${t?.author}?`,
-      async () => {
-        await dataStore.hardDeleteTestimonial(id);
-        refreshDataCollections();
-        addLogEntry('TEST_H_DEL', `Review records corresponding to ${id} wiped entirely.`);
-      }
-    );
-  };
-
   // Filter and Search Operations
   const filteredLeads = leads.filter(l => {
     const matchesSearch = l.fullName.toLowerCase().includes(leadSearch.toLowerCase()) || 
@@ -997,7 +932,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
   const ongoingProjectsCount = projects.filter(p => p.status === 'Ongoing' && !p.isDeleted).length;
   const deletedProjectsCount = projects.filter(p => p.isDeleted).length;
   const deletedLeadsCount = leads.filter(l => l.isDeleted).length;
-  const deletedTestimonialsCount = testimonials.filter((t: any) => t.isDeleted).length;
 
   // Dynamic Performance Telemetry Selection
   const getActivePerformanceData = () => {
@@ -1072,7 +1006,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                   <span className="text-industrial-red">ADMIN</span> PORTAL
                 </h1>
                 <p className="font-sans text-sm text-gray-300 leading-relaxed">
-                  Manage leads, publish portfolio case studies, and manage client reviews in one unified workspace.
+                  Manage leads and publish portfolio case studies in one unified workspace.
                 </p>
               </div>
 
@@ -1464,20 +1398,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
               </button>
 
               <button
-                onClick={() => { setActiveTab('testimonials'); setSidebarOpen(false); }}
-                className={`w-full flex items-center justify-between px-3.5 py-3 font-display font-black text-xs uppercase tracking-wider transition-all cursor-pointer border ${
-                  activeTab === 'testimonials' 
-                    ? 'bg-black text-white border-black' 
-                    : 'bg-white text-black border-transparent hover:bg-gray-100 hover:border-black'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Star className="h-4 w-4" />
-                  <span>Client Reviews</span>
-                </div>
-              </button>
-
-              <button
                 onClick={() => { setActiveTab('trash'); setSidebarOpen(false); }}
                 className={`w-full flex items-center justify-between px-3.5 py-3 font-display font-black text-xs uppercase tracking-wider transition-all cursor-pointer border ${
                   activeTab === 'trash' 
@@ -1551,7 +1471,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                     {activeTab === 'overview' && "Dashboard Control Desk"}
                     {activeTab === 'leads' && "Inbound Leads Management"}
                     {activeTab === 'projects' && "Projects Control Room"}
-                    {activeTab === 'testimonials' && "Testimonials & Reviews Portfolio"}
                     {activeTab === 'trash' && "System Vault / Archive & Trash"}
                     {activeTab === 'settings' && "System Configuration & Access Policies"}
                   </h1>
@@ -1567,7 +1486,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
               </div>
 
               {/* Dynamic Stats for active modules */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
                 <div className="border border-black p-4 bg-white relative">
                   <span className="font-mono text-[9px] text-gray-400 font-bold tracking-widest block uppercase">INBOUND LEADS</span>
                   <span className="font-display font-black text-2xl text-black block mt-1">
@@ -1588,20 +1507,10 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                   </span>
                 </div>
 
-                <div className="border border-black p-4 bg-white relative">
-                  <span className="font-mono text-[9px] text-gray-400 font-bold tracking-widest block uppercase">VERIFIED REVIEWS</span>
-                  <span className="font-display font-black text-2xl text-black block mt-1">
-                    {testimonials.filter(t => !(t as any).isDeleted).length}
-                  </span>
-                  <span className="font-mono text-[9px] text-green-600 block font-bold">
-                    100% EXCELLENCE INDEX
-                  </span>
-                </div>
-
                 <div className="border border-black p-4 bg-[#111111] text-white relative">
                   <span className="font-mono text-[9px] text-[#999999] font-bold tracking-widest block uppercase">TRASH VAULT</span>
                   <span className="font-display font-black text-2xl text-industrial-red block mt-1">
-                    {deletedProjectsCount + deletedLeadsCount + deletedTestimonialsCount}
+                    {deletedProjectsCount + deletedLeadsCount}
                   </span>
                   <span className="font-mono text-[9px] text-gray-400 block font-bold">
                     DELETED RECORDS IN POOL
@@ -2085,9 +1994,35 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
 
                     <form onSubmit={(e) => {
                       e.preventDefault();
-                      localStorage.setItem('jg_facebook_url', facebookInput);
-                      localStorage.setItem('jg_tiktok_url', tiktokInput);
-                      localStorage.setItem('jg_instagram_url', instagramInput);
+                      
+                      const normalizeSocialUrl = (url: string, defaultDomain: string) => {
+                        let trimmed = url.trim();
+                        if (!trimmed) return `https://${defaultDomain}.com`;
+                        
+                        // If it doesn't have a dot and doesn't have slashes or http/https, it's a username/handle
+                        if (!trimmed.includes('.') && !trimmed.includes('/') && !trimmed.startsWith('http')) {
+                          const cleanHandle = trimmed.startsWith('@') ? trimmed.slice(1) : trimmed;
+                          return `https://${defaultDomain}.com/${cleanHandle}`;
+                        }
+                        
+                        // If it doesn't start with http:// or https:// but looks like a domain, prepend https://
+                        if (!/^https?:\/\//i.test(trimmed)) {
+                          return `https://${trimmed}`;
+                        }
+                        return trimmed;
+                      };
+
+                      const finalFacebook = normalizeSocialUrl(facebookInput, 'facebook');
+                      const finalTiktok = normalizeSocialUrl(tiktokInput, 'tiktok');
+                      const finalInstagram = normalizeSocialUrl(instagramInput, 'instagram');
+
+                      setFacebookInput(finalFacebook);
+                      setTiktokInput(finalTiktok);
+                      setInstagramInput(finalInstagram);
+
+                      localStorage.setItem('jg_facebook_url', finalFacebook);
+                      localStorage.setItem('jg_tiktok_url', finalTiktok);
+                      localStorage.setItem('jg_instagram_url', finalInstagram);
                       
                       // Notify document to trigger a local custom event or state refresh
                       window.dispatchEvent(new Event('jg_social_routing_updated'));
@@ -2101,9 +2036,10 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                         </label>
                         <input
                           id="input-facebook-url"
-                          type="url"
+                          type="text"
                           value={facebookInput}
                           onChange={(e) => setFacebookInput(e.target.value)}
+                          placeholder="e.g. facebook.com/page or jgconstruction"
                           className="w-full bg-white border border-black px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red text-black"
                         />
                       </div>
@@ -2114,9 +2050,10 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                         </label>
                         <input
                           id="input-tiktok-url"
-                          type="url"
+                          type="text"
                           value={tiktokInput}
                           onChange={(e) => setTiktokInput(e.target.value)}
+                          placeholder="e.g. tiktok.com/@username or username"
                           className="w-full bg-white border border-black px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red text-black"
                         />
                       </div>
@@ -2127,9 +2064,10 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                         </label>
                         <input
                           id="input-instagram-url"
-                          type="url"
+                          type="text"
                           value={instagramInput}
                           onChange={(e) => setInstagramInput(e.target.value)}
+                          placeholder="e.g. instagram.com/username or username"
                           className="w-full bg-white border border-black px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red text-black"
                         />
                       </div>
@@ -2891,103 +2829,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
               </div>
             )}
 
-            {/* TAB C: TESTIMONIALS */}
-            {activeTab === 'testimonials' && (
-              <div className="space-y-6 text-left">
-                
-                {/* Control Panel actions */}
-                <div className="border border-black p-4 bg-gray-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setEditingTestimonial(null);
-                        setIsCreatingTestimonial(true);
-                      }}
-                      className="bg-black hover:bg-gray-900 border border-black text-white text-xs font-mono font-bold uppercase tracking-widest px-4 py-2 flex items-center gap-2 cursor-pointer transition-colors"
-                    >
-                      <Plus className="h-4 w-4 text-industrial-red" />
-                      <span>Ingest Customer Review</span>
-                    </button>
-                    <span className="font-mono text-xs text-gray-500">// TOTAL INDEXED REVIEWS: {testimonials.length}</span>
-                  </div>
-                </div>
-
-                {/* Review listings */}
-                <div className="space-y-4">
-                  {testimonials.map((t: any) => {
-                    return (
-                      <div 
-                        key={t.id}
-                        className={`border-2 p-5 bg-white relative flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
-                          t.isDeleted ? 'border-dashed border-red-400 opacity-80' : 'border-black'
-                        }`}
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-1.5 mb-2.5">
-                            <span className="font-mono text-[9px] text-[#1B49B8] font-bold bg-gray-50 border px-1.5 py-0.5">JG_{t.id.toUpperCase()}</span>
-                            <div className="flex items-center gap-0.5">
-                              {[...Array(t.stars)].map((_, idx) => (
-                                <Star key={idx} className="h-3.5 w-3.5 fill-industrial-red text-industrial-red" />
-                              ))}
-                            </div>
-                          </div>
-
-                          <blockquote className="font-sans text-xs sm:text-sm text-gray-750 font-bold mb-3 italic break-words w-full">
-                            "{t.quote}"
-                          </blockquote>
-
-                          <div className="font-display font-extrabold text-sm text-black">
-                            {t.author} 
-                            <span className="font-mono text-[10px] text-gray-400 font-normal uppercase tracking-normal ml-2">
-                              — {t.role} @ {t.organization}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Actions block */}
-                        <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
-                          {!t.isDeleted ? (
-                            <>
-                              <button
-                                onClick={() => setEditingTestimonial(t)}
-                                className="p-1 px-2 border border-black hover:bg-gray-50 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer"
-                              >
-                                Edit Review
-                              </button>
-                              <button
-                                onClick={() => handleSoftDeleteTestimonial(t.id)}
-                                className="p-1 px-2 border border-black text-industrial-red hover:bg-red-50 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer"
-                              >
-                                Soft Delete
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                onClick={() => handleRestoreTestimonial(t.id)}
-                                className="p-1 px-2 border border-black bg-emerald-50 text-emerald-800 text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer"
-                              >
-                                RESTORE
-                              </button>
-                              <button
-                                onClick={() => handleHardDeleteTestimonial(t.id)}
-                                className="p-1 px-2 border border-black bg-red-100 text-industrial-red text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer"
-                              >
-                                HARD PURGE
-                              </button>
-                            </>
-                          )}
-                        </div>
-
-                      </div>
-                    );
-                  })}
-                </div>
-
-              </div>
-            )}
-
-
             {/* TAB E: ARCHIVE & TRASH CENTRE */}
             {activeTab === 'trash' && (
               <div className="space-y-6 text-left">
@@ -3019,7 +2860,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                         <option value="all">All Registries</option>
                         <option value="leads">Leads Only</option>
                         <option value="projects">Projects Only</option>
-                        <option value="testimonials">Reviews Only</option>
                       </select>
                       <div className="absolute right-3.5 top-1/2 -translate-y-1/2 font-mono text-[9px] pointer-events-none">▼</div>
                     </div>
@@ -3053,11 +2893,8 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                     const deletedProjects = (trashFilter === 'all' || trashFilter === 'projects')
                       ? projects.filter(p => p.isDeleted).map(p => ({ ...p, type: 'project' as const }))
                       : [];
-                    const deletedTestimonials = (trashFilter === 'all' || trashFilter === 'testimonials')
-                      ? testimonials.filter(t => (t as any).isDeleted).map(t => ({ ...t, type: 'testimonial' as const }))
-                      : [];
 
-                    const combined = [...deletedLeads, ...deletedProjects, ...deletedTestimonials].filter(item => {
+                    const combined = [...deletedLeads, ...deletedProjects].filter(item => {
                       // Apply search query
                       const matchesSearch = !trashSearch ? true : (
                         item.id.toLowerCase().includes(trashSearch.toLowerCase()) ||
@@ -3070,11 +2907,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                           (item as any).title.toLowerCase().includes(trashSearch.toLowerCase()) ||
                           ((item as any).category || '').toLowerCase().includes(trashSearch.toLowerCase()) ||
                           ((item as any).client || '').toLowerCase().includes(trashSearch.toLowerCase())
-                        )) ||
-                        (item.type === 'testimonial' && (
-                          (item as any).author.toLowerCase().includes(trashSearch.toLowerCase()) ||
-                          ((item as any).organization || '').toLowerCase().includes(trashSearch.toLowerCase()) ||
-                          (item as any).quote.toLowerCase().includes(trashSearch.toLowerCase())
                         ))
                       );
 
@@ -3182,11 +3014,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                           [PORTFOLIO PROJ]
                                         </span>
                                       )}
-                                      {item.type === 'testimonial' && (
-                                        <span className="inline-block bg-yellow-50 text-yellow-800 border border-yellow-250 text-[8px] font-black tracking-widest px-1.5 py-0.5 uppercase">
-                                          [CLIENT REVIEW]
-                                        </span>
-                                      )}
                                     </td>
 
                                     {/* Stamp ID & Date */}
@@ -3226,17 +3053,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                           </div>
                                         </>
                                       )}
-                                      {item.type === 'testimonial' && (
-                                        <>
-                                          <div className="font-sans font-black text-xs text-black uppercase tracking-tight break-all">
-                                            {(item as any).author}
-                                          </div>
-                                          <div className="text-[10px] text-gray-500 mt-1 font-mono space-y-0.5">
-                                            <div>Company: {(item as any).organization}</div>
-                                            <div>Role: {(item as any).role}</div>
-                                          </div>
-                                        </>
-                                      )}
                                     </td>
 
                                     {/* Dispatch Row controls */}
@@ -3247,7 +3063,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                           onClick={() => {
                                             if (item.type === 'lead') setViewingLead(item as any);
                                             else if (item.type === 'project') setViewingProject(item as any);
-                                            else if (item.type === 'testimonial') setViewingTestimonial(item as any);
                                           }}
                                           className="p-1.5 border border-black hover:bg-gray-100 text-black cursor-pointer transition-colors"
                                           title="Inspect Isolated Records"
@@ -3264,9 +3079,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                             } else if (item.type === 'project') {
                                               await dataStore.restoreProject(item.id);
                                               addLogEntry('PROJ_RSTR', `Restored portfolio project "${(item as any).title}"`);
-                                            } else if (item.type === 'testimonial') {
-                                              await dataStore.restoreTestimonial(item.id);
-                                              addLogEntry('TEST_RSTR', `Restored client testimonial from ${(item as any).author}`);
                                             }
                                             refreshDataCollections();
                                             triggerAlert('RECORD RESTORED', `Record was successfully restored back to active database pipelines.`);
@@ -3290,9 +3102,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                                 } else if (item.type === 'project') {
                                                   await dataStore.hardDeleteProject(item.id);
                                                   addLogEntry('PROJ_PURG', `Permanently purged project design record "${(item as any).title}"`);
-                                                } else if (item.type === 'testimonial') {
-                                                  await dataStore.hardDeleteTestimonial(item.id);
-                                                  addLogEntry('TEST_PURG', `Permanently purged testimonial ledger ${(item as any).author}`);
                                                 }
                                                 refreshDataCollections();
                                                 triggerAlert('RECORD PURGED', `System file has been permanently deleted from storage records.`);
@@ -3704,62 +3513,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
           </div>
         )}
 
-        {viewingTestimonial && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9990] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 text-black"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, y: 15 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 15 }}
-              className="w-full max-w-lg bg-white border-2 border-black p-6 shadow-[8px_8px_0px_#111111] relative text-left space-y-4"
-            >
-              <button 
-                onClick={() => setViewingTestimonial(null)}
-                className="absolute top-4 right-4 text-black hover:text-industrial-red font-mono font-bold text-xs uppercase border border-black px-2 py-0.5 hover:bg-gray-100 transition-colors cursor-pointer"
-                title="Dismiss details"
-              >
-                Close ×
-              </button>
-              
-              <div className="flex items-center gap-2">
-                <span className="bg-yellow-50 text-yellow-800 border border-yellow-250 text-[8px] font-black tracking-widest px-2 py-1 uppercase rounded-none">
-                  CLIENT REVIEW LEDGER
-                </span>
-                <span className="font-mono text-[9px] text-gray-400">ID: {viewingTestimonial.id}</span>
-              </div>
-
-              <div>
-                <h3 className="font-display font-black text-xl text-black uppercase tracking-tight break-all">
-                  {viewingTestimonial.author}
-                </h3>
-                <span className="font-mono text-[10.5px] text-gray-500 block mt-0.5">
-                  Organization: <strong className="text-black">{viewingTestimonial.organization}</strong> ({viewingTestimonial.role})
-                </span>
-              </div>
-
-              <div className="space-y-1.5 border-t border-b border-black/10 py-3 bg-yellow-50/20 px-3">
-                <span className="font-mono text-[9px] text-amber-800 block uppercase font-bold">// Attested Quote:</span>
-                <blockquote className="font-sans text-xs italic text-black border-l-2 border-black pl-3 py-1 bg-white leading-relaxed max-h-40 overflow-y-auto whitespace-pre-wrap">
-                  "{viewingTestimonial.quote}"
-                </blockquote>
-              </div>
-
-              <div className="flex justify-end pt-2 border-t border-gray-100">
-                <button 
-                  onClick={() => setViewingTestimonial(null)}
-                  className="px-5 py-2 bg-black hover:bg-gray-850 text-white font-mono text-xs font-bold uppercase border border-black cursor-pointer shadow-[2px_2px_0px_#A3E635]"
-                >
-                  Acknowledge Testimonial
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
         {/* Root-Level Pop-up modal widget for Project Ingestion/Editing */}
         {(isCreatingProject || editingProject) && (
           <motion.div 
@@ -4087,142 +3840,6 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                     </button>
                   </div>
 
-                </form>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Root-Level Pop-up modal widget for Testimonial Ingestion/Editing */}
-        {(isCreatingTestimonial || editingTestimonial) && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9995] flex items-center justify-center p-4 sm:p-6 md:p-10 text-black"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-white border-2 border-black shadow-[8px_8px_0px_#111111] w-full max-w-7xl max-h-[92vh] flex flex-col relative"
-            >
-              {/* Header */}
-              <div className="p-6 border-b-2 border-black flex items-center justify-between bg-gray-50 shrink-0">
-                <div>
-                  <span className="font-mono text-xs text-industrial-red font-black uppercase tracking-wider block">TESTIMONIAL INPUT GRID // FULL CONTAINER INSERTION</span>
-                  <h3 className="font-display font-black text-[#111111] text-lg uppercase">
-                    {editingTestimonial ? `EDIT CUSTOMER REVIEW: ${editingTestimonial.author}` : 'ADD CUSTOMER TESTIMONY REFERENCE'}
-                  </h3>
-                </div>
-                <button 
-                  onClick={() => {
-                    setIsCreatingTestimonial(false);
-                    setEditingTestimonial(null);
-                  }}
-                  className="p-1.5 border border-black bg-white cursor-pointer hover:bg-industrial-red hover:text-white transition-colors"
-                >
-                  <X className="h-4.5 w-4.5" />
-                </button>
-              </div>
-
-              {/* Scrollable content area */}
-              <div className="overflow-y-auto p-6 sm:p-8 flex-1 text-left">
-                <form onSubmit={handleSaveTestimonial} className="space-y-6 w-full">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block font-mono text-[10px] font-bold uppercase mb-1">Author Name</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={editingTestimonial ? editingTestimonial.author : newTestimonial.author}
-                        onChange={(e) => {
-                          if (editingTestimonial) setEditingTestimonial({ ...editingTestimonial, author: e.target.value });
-                          else setNewTestimonial({ ...newTestimonial, author: e.target.value });
-                        }}
-                        className="bg-white border border-black w-full px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-mono text-[10px] font-bold uppercase mb-1">Client Official Role</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={editingTestimonial ? editingTestimonial.role : newTestimonial.role}
-                        onChange={(e) => {
-                          if (editingTestimonial) setEditingTestimonial({ ...editingTestimonial, role: e.target.value });
-                          else setNewTestimonial({ ...newTestimonial, role: e.target.value });
-                        }}
-                        placeholder="e.g. Operations Head"
-                        className="bg-white border border-black w-full px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-mono text-[10px] font-bold uppercase mb-1">Company / Organization</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={editingTestimonial ? editingTestimonial.organization : newTestimonial.organization}
-                        onChange={(e) => {
-                          if (editingTestimonial) setEditingTestimonial({ ...editingTestimonial, organization: e.target.value });
-                          else setNewTestimonial({ ...newTestimonial, organization: e.target.value });
-                        }}
-                        placeholder="e.g. Nexus Corp"
-                        className="bg-white border border-black w-full px-3 py-2 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-industrial-red"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-mono text-[10px] font-bold uppercase mb-1">Rating Stars (1-5)</label>
-                      <select
-                        value={editingTestimonial ? editingTestimonial.stars : newTestimonial.stars}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value) || 5;
-                          if (editingTestimonial) setEditingTestimonial({ ...editingTestimonial, stars: val });
-                          else setNewTestimonial({ ...newTestimonial, stars: val });
-                        }}
-                        className="bg-white border border-black w-full px-3 py-2 text-xs font-mono cursor-pointer focus:outline-none focus:ring-1 focus:ring-industrial-red"
-                      >
-                        <option value="5">5 Stars</option>
-                        <option value="4">4 Stars</option>
-                        <option value="3">3 Stars</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block font-mono text-[10px] font-bold uppercase mb-1">Quote Statement</label>
-                    <textarea 
-                      rows={4}
-                      required
-                      value={editingTestimonial ? editingTestimonial.quote : newTestimonial.quote}
-                      placeholder="Positive feedback and recommendations block..."
-                      onChange={(e) => {
-                        if (editingTestimonial) setEditingTestimonial({ ...editingTestimonial, quote: e.target.value });
-                        else setNewTestimonial({ ...newTestimonial, quote: e.target.value });
-                      }}
-                      className="bg-white border border-black w-full px-3 py-2 text-xs font-mono resize-y focus:outline-none focus:ring-1 focus:ring-industrial-red"
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsCreatingTestimonial(false);
-                        setEditingTestimonial(null);
-                      }}
-                      className="border border-black bg-white hover:bg-gray-100 text-black px-4 py-2.5 font-mono text-xs font-bold uppercase cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="bg-black hover:bg-gray-900 text-white px-5 py-2.5 font-display font-bold text-xs uppercase tracking-wider cursor-pointer border border-black flex items-center gap-1.5"
-                    >
-                      <Check className="h-4 w-4 text-industrial-red" />
-                      <span>Confirm Review Index</span>
-                    </button>
-                  </div>
                 </form>
               </div>
             </motion.div>

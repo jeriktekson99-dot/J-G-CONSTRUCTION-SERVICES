@@ -4,12 +4,11 @@ import {
   Lead, 
   ServiceItem,
   DEFAULT_PROJECTS,
-  DEFAULT_TESTIMONIALS,
   DEFAULT_LEADS,
   DEFAULT_SERVICES,
   DEFAULT_HISTORICAL_RECORDS
 } from './dataStore';
-import { TestimonialItem, HistoricalRecord } from '../types';
+import { HistoricalRecord } from '../types';
 
 // KEY MAPPINGS FOR NORMALIZING DATABASE COLUMNS ON THE FLY
 const KEY_MAPPINGS_TO_CAMEL: Record<string, string> = {
@@ -128,9 +127,7 @@ const TABLE_COLUMNS: Record<string, string[]> = {
     'scope', 'client', 'completedYear', 'complianceRatio', 
     'description', 'status', 'isDeleted'
   ],
-  testimonials: [
-    'id', 'quote', 'author', 'role', 'organization', 'stars', 'isDeleted'
-  ],
+
   leads: [
     'id', 'fullName', 'companyEmail', 'phone', 'projectScope', 
     'timestamp', 'status', 'isDeleted', 'serviceCategory'
@@ -306,15 +303,13 @@ export const supabaseSync = {
 
     // Fetch all tables in parallel to optimize load speeds
     let dbProjects: any[] | null = null;
-    let dbTestimonials: any[] | null = null;
     let dbLeads: any[] | null = null;
     let dbServices: any[] | null = null;
     let dbHistory: any[] | null = null;
 
     try {
-      const [resP, resT, resL, resS, resH] = await Promise.all([
+      const [resP, resL, resS, resH] = await Promise.all([
         supabase.from('projects').select('*'),
-        supabase.from('testimonials').select('*'),
         supabase.from('leads').select('*'),
         supabase.from('services').select('*'),
         supabase.from('historical_records').select('*')
@@ -331,16 +326,7 @@ export const supabaseSync = {
         dbProjects = resP.data;
       }
 
-      if (resT.error) {
-        if (resT.error.message?.includes('Invalid path') || resT.error.code === 'PGRST116' || resT.error.code === '42P01') {
-          missingTables.push('testimonials');
-        } else {
-          firstGeneralError = firstGeneralError || resT.error.message;
-        }
-        console.warn('Could not sync testimonials table:', resT.error.message);
-      } else {
-        dbTestimonials = resT.data;
-      }
+
 
       if (resL.error) {
         if (resL.error.message?.includes('Invalid path') || resL.error.code === 'PGRST116' || resL.error.code === '42P01') {
@@ -434,7 +420,6 @@ export const supabaseSync = {
 
     await Promise.all([
       syncSingleTable('projects', 'jg_projects', dbProjects, DEFAULT_PROJECTS),
-      syncSingleTable('testimonials', 'jg_testimonials', dbTestimonials, DEFAULT_TESTIMONIALS),
       syncSingleTable('leads', 'jg_leads', dbLeads, DEFAULT_LEADS),
       syncSingleTable('services', 'jg_services', dbServices, DEFAULT_SERVICES),
       syncSingleTable('historical_records', 'jg_historical_records', dbHistory, DEFAULT_HISTORICAL_RECORDS)
@@ -500,28 +485,7 @@ export const supabaseSync = {
     });
   },
 
-  async pushTestimonial(testimonial: TestimonialItem & { isDeleted?: boolean }): Promise<void> {
-    if (syncStatus.missingTables.includes('testimonials')) return;
-    return runMutation(async () => {
-      try {
-        await safeUpsert('testimonials', testimonial);
-      } catch (err: any) {
-        console.warn('Error pushing testimonial to Supabase:', err?.message || err);
-      }
-    });
-  },
 
-  async deleteTestimonial(id: string): Promise<void> {
-    if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes('testimonials')) return;
-    return runMutation(async () => {
-      try {
-        const { error } = await supabase.from('testimonials').delete().eq('id', id);
-        if (error) throw error;
-      } catch (err: any) {
-        console.warn('Error deleting testimonial from Supabase:', err?.message || err);
-      }
-    });
-  },
 
   async pushLead(lead: Lead): Promise<void> {
     if (syncStatus.missingTables.includes('leads')) return;

@@ -2,10 +2,29 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Star, Quote } from 'lucide-react';
 import { TestimonialItem } from '../types';
-import { dataStore } from '../utils/dataStore';
+
 
 export default function Testimonials() {
-  const testimonials: TestimonialItem[] = dataStore.getTestimonials(false);
+  const [testimonials, setTestimonials] = React.useState<TestimonialItem[]>([]);
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem('jg_testimonials');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setTestimonials(parsed.filter(t => !t.isDeleted));
+        }
+      }
+    } catch (e) {
+      console.warn(e);
+    }
+  }, []);
+
+  if (testimonials.length === 0) {
+    return null;
+  }
+
   const hasMoreThanThree = testimonials.length > 3;
 
   return (

@@ -25,6 +25,7 @@ import { ViewType } from './types';
 import ProjectShowcasePage from './components/ProjectShowcasePage';
 import { Project, dataStore } from './utils/dataStore';
 import { supabaseSync } from './utils/supabaseSync';
+import { supabase, isSupabaseConfigured } from './utils/supabaseClient';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>(() => {
@@ -91,8 +92,10 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  // Near-instant sync across different devices (background polling & tab visibility/focus sync)
+  // Near-instant sync across different devices (real-time channel subscription & background polling)
   useEffect(() => {
+    let realtimeChannel: any = null;
+
     const triggerSync = () => {
       if (document.visibilityState === 'visible') {
         supabaseSync.pullAll().then(() => {
@@ -103,8 +106,34 @@ export default function App() {
       }
     };
 
-    // Poll every 5 seconds when the tab/window is visible/active
-    const intervalId = setInterval(triggerSync, 5000);
+    // 1. Establish Live real-time Postgres changes channel subscription
+    if (isSupabaseConfigured && supabase) {
+      try {
+        realtimeChannel = supabase
+          .channel('public-db-changes')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public' },
+            (payload) => {
+              console.log('[Sync] Real-time database payload received:', payload);
+              // Trigger instant data synchronization
+              supabaseSync.pullAll().then(() => {
+                setSyncVersion(prev => prev + 1);
+              }).catch(err => {
+                console.error('[Sync] Real-time pullAll sync error:', err);
+              });
+            }
+          )
+          .subscribe((status) => {
+            console.log(`[Sync] Real-time subscription status: ${status}`);
+          });
+      } catch (err) {
+        console.warn('[Sync] Failed to register real-time channel subscription:', err);
+      }
+    }
+
+    // 2. Poll every 3 seconds as a fast fallback when the tab/window is visible
+    const intervalId = setInterval(triggerSync, 3000);
 
     // Sync instantly when user clicks back onto the tab or window
     const handleVisibilityChange = () => {
@@ -120,6 +149,14 @@ export default function App() {
       clearInterval(intervalId);
       window.removeEventListener('focus', triggerSync);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      
+      if (realtimeChannel && supabase) {
+        try {
+          supabase.removeChannel(realtimeChannel);
+        } catch (err) {
+          console.warn('[Sync] Error cleaning up real-time channel:', err);
+        }
+      }
     };
   }, []);
 
@@ -185,7 +222,7 @@ export default function App() {
       />
       
       {/* View Content Delivery */}
-      <div key={syncVersion}>
+      <div>
         {selectedProject ? (
           <ProjectShowcasePage 
             project={selectedProject}
@@ -278,6 +315,7 @@ export default function App() {
                   setSelectedProject(p);
                   handleSetView('home');
                 }}
+                syncVersion={syncVersion}
               />
             )}
           </>

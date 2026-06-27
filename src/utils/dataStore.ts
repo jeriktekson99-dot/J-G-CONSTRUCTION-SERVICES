@@ -1,4 +1,4 @@
-import { TestimonialItem, HistoricalRecord } from '../types';
+import { HistoricalRecord } from '../types';
 import { supabaseSync } from './supabaseSync';
 
 export interface Lead {
@@ -43,162 +43,12 @@ export interface ServiceItem {
 }
 
 // Default Projects
-export const DEFAULT_PROJECTS: Project[] = [
-  {
-    id: "proj-1",
-    title: "Steel Truss Logistics Warehouse",
-    category: "Industrial Frameworks",
-    location: "Cavite",
-    image: "/assets/images/industrial_retrofit_1780500246965.png",
-    scope: "Direct structural framework engineering, clear-span steel positioning, welding inspections, and gantry rail alignment.",
-    client: "Universal Logistics Inc.",
-    completedYear: "2025",
-    complianceRatio: "100% Structural Safety Audit Passed",
-    description: "Designed to bear severe typhonic wind loads up to 280 KPH. Utilizes highly-optimized rigid gusset plate connections to distribute sheer forces evenly across structural frames.",
-    status: "Completed"
-  },
-  {
-    id: "proj-2",
-    title: "Prime Commercial Hub Shell & Core",
-    category: "Commercial Build",
-    location: "Lucena City",
-    image: "/assets/images/commercial_development_1780500228422.png",
-    scope: "Multistory steel framing, architectural curtain wall frame integrations, monolithic core column positioning, and turnkey concrete works.",
-    client: "Lucena Holdings Corp.",
-    completedYear: "2025",
-    complianceRatio: "Unified Engineering Grade A Cert.",
-    description: "A flagship multistory framework utilizing high-strength pre-tensioned structural concrete columns to limit space consumption and deliver beautiful column-free interior floor plates.",
-    status: "Ongoing"
-  },
-  {
-    id: "proj-3",
-    title: "Seismic Retrofitting Project Alpha",
-    category: "Structural Design",
-    location: "Tayabas",
-    image: "/assets/images/field_excellence_operations_1780503096054.png",
-    scope: "Carbon-fiber column wrapping (CFRP), post-tension anchor placements, load recalculation distributions, and active in-process welding.",
-    client: "Heritage Restoration Board",
-    completedYear: "2024",
-    complianceRatio: "National Building Safety Standard Approved",
-    description: "Implemented structural carbon-fiber jacket laminates to raise older concrete frame shear tolerances by 140% without imposing noticeable weight dead-loads.",
-    status: "Completed"
-  },
-  {
-    id: "proj-4",
-    title: "Heavy Industrial Foundation Works",
-    category: "Civil Works",
-    location: "Batangas",
-    image: "/assets/images/rebar_foundation_1780503628161.png",
-    scope: "Deep pile micro-piling, monolithic high-density concrete placement, deep retaining walls, and soil compaction verification checks.",
-    client: "Batangas Port Terminals",
-    completedYear: "2024",
-    complianceRatio: "Zero Settlement Tolerance Metric Reached",
-    description: "Bespoke foundation structures engineered specifically to resist extreme structural vibrations caused by high-power industrial cargo movement cranes.",
-    status: "Ongoing"
-  },
-  {
-    id: "proj-5",
-    title: "Multi-Level Institutional Complex",
-    category: "Commercial Build",
-    location: "Imus",
-    image: "/assets/images/commercial_fitout_1780503646291.png",
-    scope: "Turnkey structural fabrication, load-bearing concrete staircases, fire exits integration, and mechanical/electrical sleeve positioning.",
-    client: "St. Jude Educational Guild",
-    completedYear: "2024",
-    complianceRatio: "100% Fire & Safety Code Compliant",
-    description: "Spacious layout optimization combining lightweight steel framing studs with high-performance soundproofing. Structured for maximum safety and high-traffic egress safety.",
-    status: "Completed"
-  },
-  {
-    id: "proj-6",
-    title: "Specialized Steel Framework Fabrication",
-    category: "Industrial Frameworks",
-    location: "Laguna",
-    image: "/assets/images/about_construction_site_1780503065020.png",
-    scope: "High-accuracy truss design, heavy steel gusset structural stamp verification, automated machinery mounting, and vibration isolation.",
-    client: "Apex Manufacturing Solutions",
-    completedYear: "2023",
-    complianceRatio: "Weld Defeat Testing Rated: 100% Solid",
-    description: "A precision-built framework engineered specifically to resist mechanical fatigue patterns resulting from continuous automated robotics operation.",
-    status: "Completed"
-  },
-  {
-    id: "proj-7",
-    title: "Municipal Drainage & Civil Infrastructure",
-    category: "Civil Works",
-    location: "Quezon",
-    image: "/assets/images/civil_infrastructure_1780500263690.png",
-    scope: "Site surveys, volume balance earthworks grading, high-flow storm-water cell construction, and reinforced precast culvert systems.",
-    client: "Quezon Provincial Secretariat",
-    completedYear: "2023",
-    complianceRatio: "10-Year Severe Weather Rating Passed",
-    description: "Integrated drainage network built using high-strength precast concrete to handle regional monsoonal precipitation rates safely.",
-    status: "Completed"
-  },
-  {
-    id: "proj-8",
-    title: "High-Load Structural Slab Engineering",
-    category: "Structural Design",
-    location: "Manila",
-    image: "/assets/images/blueprint_cad_1780503663960.png",
-    scope: "Finite element shear evaluation drawings, rebar grid designs, heavy slab structural modeling, and strict compliance certification.",
-    client: "Metropolitan Central Plaza",
-    completedYear: "2023",
-    complianceRatio: "Direct Structural Engineering Stamp Executed",
-    description: "Calculated structural distribution model enabling heavy vehicle loading parking decks to sit safely above high-span retail units.",
-    status: "Completed"
-  }
-];
+export const DEFAULT_PROJECTS: Project[] = [];
 
-// Default Testimonials
-export const DEFAULT_TESTIMONIALS: TestimonialItem[] = [
-  {
-    id: "cl-1",
-    quote: "J/G Construction Services brought unmatched clarity to our commercial development project. Their structural solutions saved us weeks on the timeline.",
-    author: "Robert Vance",
-    role: "Project Director",
-    organization: "Corporate Logistics Group",
-    stars: 5
-  },
-  {
-    id: "cl-2",
-    quote: "Professional, precise, and completely transparent. The site management team maintained a spotless safety record throughout construction.",
-    author: "Elena Rostova",
-    role: "Operations Head",
-    organization: "Urban Infrastructure Alliance",
-    stars: 5
-  },
-  {
-    id: "cl-3",
-    quote: "Their value engineering phase cut down material waste significantly while strengthening the overall design integrity. Absolute masterclass.",
-    author: "Marcus Aurelius",
-    role: "Lead Architect",
-    organization: "Nexus Architectural Syndicate",
-    stars: 5
-  }
-];
+
 
 // Default Leads
-export const DEFAULT_LEADS: Lead[] = [
-  {
-    id: "lead-1",
-    fullName: "Arthur Pendragon",
-    companyEmail: "arthur@excalibur.org",
-    phone: "+63 (0915) 777-1234",
-    projectScope: "Need structural calculations and wet-seal drafting templates for an industrial hangar revamp in Cavite.",
-    timestamp: "2026-06-20T10:30:00Z",
-    status: "Pending"
-  },
-  {
-    id: "lead-2",
-    fullName: "Sarah Connor",
-    companyEmail: "sconnor@cyberdyne.corp",
-    phone: "+63 (0921) 888-4321",
-    projectScope: "Seismic retrofitting evaluation of reinforced concrete columns and load transfer structures.",
-    timestamp: "2026-06-21T14:15:00Z",
-    status: "Reviewed"
-  }
-];
+export const DEFAULT_LEADS: Lead[] = [];
 
 // Default Services Detail
 export const DEFAULT_SERVICES: ServiceItem[] = [
@@ -448,11 +298,8 @@ export const dataStore = {
 
     let filteredProjects = includeDeleted ? projects : projects.filter(p => !p.isDeleted);
     
-    // Dynamically filter out default template projects if at least one custom project exists
-    const hasCustomProjects = filteredProjects.some(p => p.id && !p.id.match(/^proj-[1-8]$/));
-    if (hasCustomProjects) {
-      filteredProjects = filteredProjects.filter(p => !p.id.match(/^proj-[1-8]$/));
-    }
+    // Always filter out default template projects completely for good
+    filteredProjects = filteredProjects.filter(p => !p.id || !p.id.match(/^proj-[1-8]$/));
 
     return filteredProjects;
   },
@@ -504,66 +351,7 @@ export const dataStore = {
     await supabaseSync.deleteProject(id);
   },
 
-  // TESTIMONIALS CRUD
-  getTestimonials(includeDeleted = false): TestimonialItem[] {
-    if (!isClient) return DEFAULT_TESTIMONIALS;
-    const raw = localStorage.getItem('jg_testimonials');
-    if (!raw) {
-      localStorage.setItem('jg_testimonials', JSON.stringify(DEFAULT_TESTIMONIALS));
-      return DEFAULT_TESTIMONIALS;
-    }
-    const testimonials: (TestimonialItem & { isDeleted?: boolean })[] = JSON.parse(raw);
-    let filtered = includeDeleted ? testimonials : testimonials.filter(t => !t.isDeleted);
-    
-    // Dynamically filter out default template testimonials if at least one custom testimonial exists
-    const hasCustom = filtered.some(t => t.id && !t.id.match(/^cl-[1-3]$/));
-    if (hasCustom) {
-      filtered = filtered.filter(t => !t.id.match(/^cl-[1-3]$/));
-    }
-    return filtered;
-  },
 
-  saveTestimonial(testimonial: TestimonialItem & { isDeleted?: boolean }): void {
-    if (!isClient) return;
-    const testimonials = this.getTestimonials(true);
-    const index = testimonials.findIndex(t => t.id === testimonial.id);
-    if (index >= 0) {
-      testimonials[index] = testimonial;
-    } else {
-      testimonials.push(testimonial);
-    }
-    localStorage.setItem('jg_testimonials', JSON.stringify(testimonials));
-    supabaseSync.pushTestimonial(testimonial);
-  },
-
-  async deleteTestimonialSoft(id: string): Promise<void> {
-    if (!isClient) return;
-    const testimonials = this.getTestimonials(true);
-    const index = testimonials.findIndex(t => t.id === id);
-    if (index >= 0) {
-      (testimonials[index] as any).isDeleted = true;
-      localStorage.setItem('jg_testimonials', JSON.stringify(testimonials));
-      await supabaseSync.pushTestimonial(testimonials[index]);
-    }
-  },
-
-  async restoreTestimonial(id: string): Promise<void> {
-    if (!isClient) return;
-    const testimonials = this.getTestimonials(true);
-    const index = testimonials.findIndex(t => t.id === id);
-    if (index >= 0) {
-      (testimonials[index] as any).isDeleted = false;
-      localStorage.setItem('jg_testimonials', JSON.stringify(testimonials));
-      await supabaseSync.pushTestimonial(testimonials[index]);
-    }
-  },
-
-  async hardDeleteTestimonial(id: string): Promise<void> {
-    if (!isClient) return;
-    const testimonials = this.getTestimonials(true).filter(t => t.id !== id);
-    localStorage.setItem('jg_testimonials', JSON.stringify(testimonials));
-    await supabaseSync.deleteTestimonial(id);
-  },
 
   // LEADS (Inbound Data capture) CRUD
   getLeads(includeDeleted = false): Lead[] {
@@ -576,11 +364,8 @@ export const dataStore = {
     const leads: Lead[] = JSON.parse(raw);
     let filtered = includeDeleted ? leads : leads.filter(l => !l.isDeleted);
     
-    // Dynamically filter out default template leads if at least one custom lead exists
-    const hasCustom = filtered.some(l => l.id && !l.id.match(/^lead-[1-2]$/));
-    if (hasCustom) {
-      filtered = filtered.filter(l => !l.id.match(/^lead-[1-2]$/));
-    }
+    // Always filter out default template leads completely for good
+    filtered = filtered.filter(l => !l.id || !l.id.match(/^lead-[1-2]$/));
     return filtered;
   },
 
