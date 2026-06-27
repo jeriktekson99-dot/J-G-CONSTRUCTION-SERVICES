@@ -170,6 +170,21 @@ async function runMutation<T>(op: () => Promise<T>): Promise<T> {
   }
 }
 
+function broadcastSyncMutation(tableName: string) {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const channel = supabase.channel('public-db-changes');
+      channel.send({
+        type: 'broadcast',
+        event: 'sync_mutation',
+        payload: { table: tableName, timestamp: Date.now() }
+      });
+    } catch (e) {
+      console.warn('Failed to send broadcast sync message:', e);
+    }
+  }
+}
+
 // Listeners/callbacks when sync status updates
 const statusListeners = new Set<(status: SupabaseSyncStatus) => void>();
 
@@ -502,6 +517,10 @@ export const supabaseSync = {
       syncSingleTable('historical_records', 'jg_historical_records', dbHistory, DEFAULT_HISTORICAL_RECORDS)
     ]);
 
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('jg_database_sync_updated'));
+    }
+
     // Compute status
     const isMissingTables = missingTables.length > 0;
     syncStatus = {
@@ -538,6 +557,7 @@ export const supabaseSync = {
 
   async pushProject(project: Project): Promise<void> {
     registerLocalMutation('projects', project.id, 'upsert', project);
+    broadcastSyncMutation('projects');
     if (syncStatus.missingTables.includes('projects')) return;
     return runMutation(async () => {
       try {
@@ -550,6 +570,7 @@ export const supabaseSync = {
 
   async deleteProject(id: string): Promise<void> {
     registerLocalMutation('projects', id, 'delete');
+    broadcastSyncMutation('projects');
     if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes('projects')) return;
     return runMutation(async () => {
       try {
@@ -565,6 +586,7 @@ export const supabaseSync = {
 
   async pushLead(lead: Lead): Promise<void> {
     registerLocalMutation('leads', lead.id, 'upsert', lead);
+    broadcastSyncMutation('leads');
     if (syncStatus.missingTables.includes('leads')) return;
     return runMutation(async () => {
       try {
@@ -577,6 +599,7 @@ export const supabaseSync = {
 
   async deleteLead(id: string): Promise<void> {
     registerLocalMutation('leads', id, 'delete');
+    broadcastSyncMutation('leads');
     if (!isSupabaseConfigured || !supabase || syncStatus.missingTables.includes('leads')) return;
     return runMutation(async () => {
       try {
@@ -590,6 +613,7 @@ export const supabaseSync = {
 
   async pushService(service: ServiceItem): Promise<void> {
     registerLocalMutation('services', service.id, 'upsert', service);
+    broadcastSyncMutation('services');
     if (syncStatus.missingTables.includes('services')) return;
     return runMutation(async () => {
       try {
@@ -602,6 +626,7 @@ export const supabaseSync = {
 
   async pushHistoricalRecord(record: HistoricalRecord): Promise<void> {
     registerLocalMutation('historical_records', record.id, 'upsert', record);
+    broadcastSyncMutation('historical_records');
     if (syncStatus.missingTables.includes('historical_records')) return;
     return runMutation(async () => {
       try {

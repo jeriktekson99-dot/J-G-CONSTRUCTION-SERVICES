@@ -124,6 +124,19 @@ export default function App() {
               });
             }
           )
+          .on(
+            'broadcast',
+            { event: 'sync_mutation' },
+            (payload) => {
+              console.log('[Sync] Real-time broadcast received:', payload);
+              // Trigger instant data synchronization
+              supabaseSync.pullAll().then(() => {
+                setSyncVersion(prev => prev + 1);
+              }).catch(err => {
+                console.error('[Sync] Real-time broadcast pullAll sync error:', err);
+              });
+            }
+          )
           .subscribe((status) => {
             console.log(`[Sync] Real-time subscription status: ${status}`);
           });

@@ -706,6 +706,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
 
   const handleSoftDeleteLead = async (id: string) => {
     await dataStore.deleteLeadSoft(id);
+    setSelectedLeadIds(prev => prev.filter(leadId => leadId !== id));
     refreshDataCollections();
     addLogEntry('LEAD_S_DEL', `Lead ${id} flags marked as DELETED (isolated in soft-delete vault).`);
   };
@@ -868,6 +869,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
 
   const handleSoftDeleteProject = async (id: string) => {
     await dataStore.deleteProjectSoft(id);
+    setSelectedProjectIds(prev => prev.filter(projId => projId !== id));
     refreshDataCollections();
     const p = dataStore.getProjectById(id);
     addLogEntry('PROJ_S_DEL', `Project "${p?.title}" soft-deleted (retained in safety database folder).`);
@@ -3094,12 +3096,13 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                         {/* Restore button */}
                                         <button
                                           onClick={async () => {
+                                            const itemKey = `trash-${item.type}-${item.id}`;
                                             if (item.type === 'lead') {
                                               await dataStore.restoreLead(item.id);
-                                              addLogEntry('LEAD_RSTR', `Restored inbound lead for ${(item as any).fullName}`);
+                                              addLogEntry('LEAD_RSTR', `Restored inbound lead for ${(item as any).fullName}`); setSelectedTrashKeys(prev => prev.filter(k => k !== itemKey));
                                             } else if (item.type === 'project') {
                                               await dataStore.restoreProject(item.id);
-                                              addLogEntry('PROJ_RSTR', `Restored portfolio project "${(item as any).title}"`);
+                                              addLogEntry('PROJ_RSTR', `Restored portfolio project "${(item as any).title}"`); setSelectedTrashKeys(prev => prev.filter(k => k !== itemKey));
                                             }
                                             refreshDataCollections();
                                             triggerAlert('RECORD RESTORED', `Record was successfully restored back to active database pipelines.`);
@@ -3113,7 +3116,7 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                         {/* Hard permanent purge */}
                                         <button
                                           onClick={() => {
-                                            triggerConfirm(
+                                            const itemKey = `trash-${item.type}-${item.id}`; triggerConfirm(
                                               "SECURITY PROTOCOL: PERMANENT DESTRUCT",
                                               "Are you absolutely certain you want to permanently purge this file? This will completely wipe all footprints from browser local memory.",
                                               async () => {
@@ -3124,7 +3127,8 @@ export default function AdminPortal({ onScrollToSection, setView, onViewLiveProj
                                                   await dataStore.hardDeleteProject(item.id);
                                                   addLogEntry('PROJ_PURG', `Permanently purged project design record "${(item as any).title}"`);
                                                 }
-                                                refreshDataCollections();
+                                                setSelectedTrashKeys(prev => prev.filter(k => k !== itemKey));
+                                             refreshDataCollections();
                                                 triggerAlert('RECORD PURGED', `System file has been permanently deleted from storage records.`);
                                               }
                                             );

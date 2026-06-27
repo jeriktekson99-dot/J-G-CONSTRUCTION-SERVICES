@@ -225,6 +225,12 @@ const isClient = typeof window !== 'undefined';
 
 const listeners = new Set<() => void>();
 
+if (typeof window !== 'undefined') {
+  window.addEventListener('jg_database_sync_updated', () => {
+    listeners.forEach(fn => fn());
+  });
+}
+
 const safeSetItem = (key: string, value: string): void => {
   try {
     localStorage.setItem(key, value);
